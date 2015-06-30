@@ -6,6 +6,7 @@ import gzip
 import pickle
 import progressbar as pb
 import networkx as nx
+import zipfile as zf
 
 
 def pbmap(func, list):
@@ -19,31 +20,51 @@ def pbmap(func, list):
     return out
 
 
-def load_fcg(dir):
+def load_fcg(path):
     """ Load graphs in FCG format (see Adagio by H. Gascon) """
 
     graphs = []
     progress = pb.ProgressBar()
-    for file in progress(os.listdir(dir)):
-        if os.path.splitext(file)[1] != ".pz":
-            continue
 
-        fn = os.path.join(dir, file)
-        g = pickle.loads(gzip.GzipFile(fn).read())
+    # Read files from directory in original "pz" format"
+    if os.path.isdir(path):
+        for file in progress(os.listdir(path)):
+            fn = os.path.join(path, file)
+            if os.path.splitext(file)[1] != ".pz":
+                continue
 
-        # Map nodes to indices for simplicity
-        mapping = dict(zip(g.nodes(), range(len(g.nodes()))))
-        g = nx.relabel_nodes(g, mapping)
+            g = pickle.loads(gzip.open(fn).read())
+            g = unify_fcg(g)
+            graphs.append(g)
+    # Read files from zip archive in unpacked "fcg" format
+    else:
+        z = zf.ZipFile(path)
+        for file in progress(z.namelist()):
+            if os.path.splitext(file)[1] != ".fcg":
+                continue
 
-        # Add original node labels and fix label
-        inverse = {v: k for k, v in mapping.items()}
-        for key in g.nodes():
-            g.node[key]["function"] = inverse[key]
-            label = g.node[key]["label"]
-            g.node[key]["label"] = ''.join(map(str, label))
+            g = pickle.loads(z.open(file).read())
+            g = unify_fcg(g)
+            graphs.append(g)
 
-        graphs.append(g)
     return graphs
+
+
+def unify_fcg(g):
+    """ Unify layout of FCG format """
+
+    # Map nodes to indices for simplicity
+    mapping = dict(zip(g.nodes(), range(len(g.nodes()))))
+    g = nx.relabel_nodes(g, mapping)
+
+    # Add original node labels and fix label
+    inverse = {v: k for k, v in mapping.items()}
+    for key in g.nodes():
+        g.node[key]["function"] = inverse[key]
+        label = g.node[key]["label"]
+        g.node[key]["label"] = ''.join(map(str, label))
+
+    return g
 
 
 def murmur3(data, seed=0):

@@ -9,29 +9,29 @@ import pygraphviz as pg
 import networkx as nx
 
 
-def load_fcg_zip(fname):
+def load_fcg_zip(filename):
     """ Load FCG graphs from zip archive """
 
     pool = Pool()
+    archive = zf.ZipFile(filename)
+    entries = [(archive, entry) for entry in archive.namelist()]
 
-    z = zf.ZipFile(fname)
-    fnames = [(z, e) for e in z.namelist()]
-    graphs = pool.map(load_fcg_zentry, fnames)
-    z.close()
+    graphs = pool.map(load_fcg_entry, entries)
 
     pool.close()
     pool.join()
+    archive.close()
 
     return filter(lambda g: g, graphs)
 
 
-def load_fcg_zentry((z, fn)):
+def load_fcg_entry((archive, entry)):
     """ Load one FCG graph from zip archive """
 
-    if fn.endswith("/") or not fn.endswith(".fcg"):
+    if entry.endswith("/") or not entry.endswith(".fcg"):
         return None
 
-    g = pickle.loads(z.open(fn).read())
+    g = pickle.loads(archive.open(entry).read())
 
     # Map nodes to indices for simplicity
     mapping = dict(zip(g.nodes(), range(len(g.nodes()))))
@@ -48,48 +48,48 @@ def load_fcg_zentry((z, fn)):
     return g
 
 
-def load_dot_zip(fname):
+def load_dot_zip(filename):
     """ Load DOT graphs from zip archive """
 
     pool = Pool()
+    archive = zf.ZipFile(filename)
 
-    z = zf.ZipFile(fname)
-    fnames = [(z, e) for e in z.namelist()]
-    graphs = pool.map(load_dot_zentry, fnames)
-    z.close()
+    entries = [(archive, entry) for entry in archive.namelist()]
+    graphs = pool.map(load_dot_entry, entries)
 
+    archive.close()
     pool.close()
     pool.join()
 
     return filter(lambda g: g, graphs)
 
 
-def load_dot_zentry((z, fn)):
+def load_dot_entry((archive, entry)):
     """ Load one DOT graph from zip archive """
 
-    if fn.endswith("/") or not fn.endswith(".dot"):
+    if entry.endswith("/") or not entry.endswith(".dot"):
         return None
 
-    dot = pg.AGraph(z.open(fn).read())
+    dot = pg.AGraph(archive.open(entry).read())
     return nx.from_agraph(dot)
 
 
-def save_dot_zip(graphs, fname):
+def save_dot_zip(graphs, filename):
     """ Save DOT graphs to zip archive """
 
-    z = zf.ZipFile(fname, "w", zf.ZIP_DEFLATED)
+    archive = zf.ZipFile(filename, "w", zf.ZIP_DEFLATED)
 
     for i, g in enumerate(graphs):
         dot = nx.to_agraph(g)
-        z.writestr("%.7d.dot" % i, dot.to_string())
+        archive.writestr("%.7d.dot" % i, dot.to_string())
 
-    z.close()
+    archive.close()
 
 
-def save_libsvm(fn, fvecs, label):
+def save_libsvm(filename, fvecs, label):
     """ Save feature vectors to libsvm file """
 
-    f = open(fn, "w")
+    f = open(filename, "w")
 
     for fvec in fvecs:
         f.write("%d" % label)

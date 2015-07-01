@@ -2,6 +2,7 @@
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import utils
+import sys
 
 
 def bag_of_labels(graph):
@@ -66,3 +67,6 @@ def bag_to_fvec(bag, bits=24, hashs={}):
     return fvec
 
 
+graphs = utils.load_fcg_zip(sys.argv[1])
+utils.save_dot_zip(graphs, "foobar.zip")
+graphs = utils.load_dot_zip("foobar.zip")

@@ -1,12 +1,13 @@
 # Shorty - Shortest-Path Graph Embedding
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
-import os
-import gzip
 import pickle
-from tqdm import *
-import networkx as nx
 import zipfile as zf
+
+import pygraphviz as pg
+import networkx as nx
+
+from tqdm import *
 
 
 def tmap(func, list, desc):
@@ -19,44 +20,23 @@ def tmap(func, list, desc):
     return out
 
 
-def load_fcg_dir(dir):
-    """ Load graphs in FCG format (see Adagio by H. Gascon) """
-
-    graphs = []
-    for fn in tqdm(os.listdir(dir), "Loading"):
-        path = os.path.join(dir, fn)
-        # Load file in fcg format
-        if os.path.splitext(fn)[1] == ".fcg":
-            g = pickle.loads(open(path).read())
-        # Load file in pz format
-        elif os.path.splitext(fn)[1] == ".pz":
-            g = pickle.loads(gzip.open(path).read())
-        else:
-            continue
-
-        g = unify_fcg(g)
-        graphs.append(g)
-
-    return graphs
-
-
 def load_fcg_zip(zfile):
     """ Load graphs in FCG format from zip archive """
 
     graphs = []
     z = zf.ZipFile(zfile)
-    for fn in tqdm(z.namelist(), "Loading"):
-        if fn.endswith("/"):
+    for fn in tqdm(z.namelist(), "Loading FCG"):
+        if fn.endswith("/") or not fn.endswith(".fcg"):
             continue
         g = pickle.loads(z.open(fn).read())
-        g = unify_fcg(g)
+        g = simplify_fcg(g)
         graphs.append(g)
 
     return graphs
 
 
-def unify_fcg(g):
-    """ Unify layout of FCG format """
+def simplify_fcg(g):
+    """ Simplify layout of FCG format """
 
     # Map nodes to indices for simplicity
     mapping = dict(zip(g.nodes(), range(len(g.nodes()))))
@@ -65,7 +45,8 @@ def unify_fcg(g):
     # Add original node labels and fix label
     inverse = {v: k for k, v in mapping.items()}
     for key in g.nodes():
-        g.node[key]["function"] = inverse[key]
+        obj = ''.join(inverse[key][:-1]).decode("utf8")
+        g.node[key]["obj"] = obj
         label = g.node[key]["label"]
         g.node[key]["label"] = ''.join(map(str, label))
 
@@ -84,6 +65,34 @@ def save_libsvm(fn, fvecs, label):
         f.write("\n")
 
     f.close()
+
+
+def save_dot_zip(graphs, fname):
+    """ Store graphs as DOT in zip archive """
+    z = zf.ZipFile(fname, "w", zf.ZIP_DEFLATED)
+
+    for i, g in tqdm(enumerate(graphs), "Saving DOT"):
+        dot = nx.to_agraph(g)
+        z.writestr("%.7d.dot" % i, dot.to_string())
+
+    z.close()
+
+
+def load_dot_zip(fname):
+    """ Load graphs as DOT from zip archive """
+    z = zf.ZipFile(fname)
+    graphs = []
+    for fn in tqdm(z.namelist(), "Loading DOT"):
+        if fn.endswith("/") or not fn.endswith(".dot"):
+            continue
+
+        dot = pg.AGraph(z.open(fn).read())
+        g = nx.from_agraph(dot)
+
+        graphs.append(g)
+
+    z.close()
+
 
 def murmur3(data, seed=0):
     """ Implementation of Murmur 3 hash by Maurus Decimus """

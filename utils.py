@@ -3,40 +3,35 @@
 
 import pickle
 import zipfile as zf
+from multiprocessing import Pool
 
 import pygraphviz as pg
 import networkx as nx
 
-from tqdm import *
+
+def load_fcg_zip(fname):
+    """ Load FCG graphs from zip archive """
+
+    pool = Pool()
+
+    z = zf.ZipFile(fname)
+    fnames = [(z, e) for e in z.namelist()]
+    graphs = pool.map(load_fcg_zentry, fnames)
+    z.close()
+
+    pool.close()
+    pool.join()
+
+    return filter(lambda g: g, graphs)
 
 
-def tmap(func, list, desc):
-    """ Map function with progressbar """
+def load_fcg_zentry((z, fn)):
+    """ Load one FCG graph from zip archive """
 
-    out = []
-    for item in tqdm(list, desc):
-        out.append(func(item))
+    if fn.endswith("/") or not fn.endswith(".fcg"):
+        return None
 
-    return out
-
-
-def load_fcg_zip(zfile):
-    """ Load graphs in FCG format from zip archive """
-
-    graphs = []
-    z = zf.ZipFile(zfile)
-    for fn in tqdm(z.namelist(), "Loading FCG"):
-        if fn.endswith("/") or not fn.endswith(".fcg"):
-            continue
-        g = pickle.loads(z.open(fn).read())
-        g = simplify_fcg(g)
-        graphs.append(g)
-
-    return graphs
-
-
-def simplify_fcg(g):
-    """ Simplify layout of FCG format """
+    g = pickle.loads(z.open(fn).read())
 
     # Map nodes to indices for simplicity
     mapping = dict(zip(g.nodes(), range(len(g.nodes()))))
@@ -45,7 +40,7 @@ def simplify_fcg(g):
     # Add original node labels and fix label
     inverse = {v: k for k, v in mapping.items()}
     for key in g.nodes():
-        obj = ''.join(inverse[key][:-1]).decode("utf8")
+        obj = ''.join(inverse[key][:-1]).decode("ascii", "ignore")
         g.node[key]["obj"] = obj
         label = g.node[key]["label"]
         g.node[key]["label"] = ''.join(map(str, label))
@@ -53,10 +48,50 @@ def simplify_fcg(g):
     return g
 
 
+def load_dot_zip(fname):
+    """ Load DOT graphs from zip archive """
+
+    pool = Pool()
+
+    z = zf.ZipFile(fname)
+    fnames = [(z, e) for e in z.namelist()]
+    graphs = pool.map(load_dot_zentry, fnames)
+    z.close()
+
+    pool.close()
+    pool.join()
+
+    return filter(lambda g: g, graphs)
+
+
+def load_dot_zentry((z, fn)):
+    """ Load one DOT graph from zip archive """
+
+    if fn.endswith("/") or not fn.endswith(".dot"):
+        return None
+
+    dot = pg.AGraph(z.open(fn).read())
+    return nx.from_agraph(dot)
+
+
+def save_dot_zip(graphs, fname):
+    """ Save DOT graphs to zip archive """
+
+    z = zf.ZipFile(fname, "w", zf.ZIP_DEFLATED)
+
+    for i, g in enumerate(graphs):
+        dot = nx.to_agraph(g)
+        z.writestr("%.7d.dot" % i, dot.to_string())
+
+    z.close()
+
+
 def save_libsvm(fn, fvecs, label):
+    """ Save feature vectors to libsvm file """
+
     f = open(fn, "w")
 
-    for fvec in tqdm(fvecs, "Saving"):
+    for fvec in fvecs:
         f.write("%d" % label)
         for dim in sorted(fvec):
             if fvec[dim] < 1e-9:
@@ -65,33 +100,6 @@ def save_libsvm(fn, fvecs, label):
         f.write("\n")
 
     f.close()
-
-
-def save_dot_zip(graphs, fname):
-    """ Store graphs as DOT in zip archive """
-    z = zf.ZipFile(fname, "w", zf.ZIP_DEFLATED)
-
-    for i, g in tqdm(enumerate(graphs), "Saving DOT"):
-        dot = nx.to_agraph(g)
-        z.writestr("%.7d.dot" % i, dot.to_string())
-
-    z.close()
-
-
-def load_dot_zip(fname):
-    """ Load graphs as DOT from zip archive """
-    z = zf.ZipFile(fname)
-    graphs = []
-    for fn in tqdm(z.namelist(), "Loading DOT"):
-        if fn.endswith("/") or not fn.endswith(".dot"):
-            continue
-
-        dot = pg.AGraph(z.open(fn).read())
-        g = nx.from_agraph(dot)
-
-        graphs.append(g)
-
-    z.close()
 
 
 def murmur3(data, seed=0):

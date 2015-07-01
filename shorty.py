@@ -67,6 +67,9 @@ def bag_to_fvec(bag, bits=24, hashs={}):
     return fvec
 
 
+print "Loading FCG graphs..."
 graphs = utils.load_fcg_zip(sys.argv[1])
+print "Saving DOT graphs..."
 utils.save_dot_zip(graphs, "foobar.zip")
+print "Loading DOT graphs..."
 graphs = utils.load_dot_zip("foobar.zip")

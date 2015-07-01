@@ -4,48 +4,53 @@
 import os
 import gzip
 import pickle
-import progressbar as pb
+from tqdm import *
 import networkx as nx
 import zipfile as zf
 
 
-def pbmap(func, list):
+def tmap(func, list, desc):
     """ Map function with progressbar """
 
-    progress = pb.ProgressBar()
     out = []
-    for item in progress(list):
+    for item in tqdm(list, desc):
         out.append(func(item))
 
     return out
 
 
-def load_fcg(path):
+def load_fcg_dir(dir):
     """ Load graphs in FCG format (see Adagio by H. Gascon) """
 
     graphs = []
-    progress = pb.ProgressBar()
+    for fn in tqdm(os.listdir(dir), "Loading"):
+        path = os.path.join(dir, fn)
+        # Load file in fcg format
+        if os.path.splitext(fn)[1] == ".fcg":
+            g = pickle.loads(open(path).read())
+        # Load file in pz format
+        elif os.path.splitext(fn)[1] == ".pz":
+            g = pickle.loads(gzip.open(path).read())
+        else:
+            continue
 
-    # Read files from directory in original "pz" format"
-    if os.path.isdir(path):
-        for file in progress(os.listdir(path)):
-            fn = os.path.join(path, file)
-            if os.path.splitext(file)[1] != ".pz":
-                continue
+        g = unify_fcg(g)
+        graphs.append(g)
 
-            g = pickle.loads(gzip.open(fn).read())
-            g = unify_fcg(g)
-            graphs.append(g)
-    # Read files from zip archive in unpacked "fcg" format
-    else:
-        z = zf.ZipFile(path)
-        for file in progress(z.namelist()):
-            if os.path.splitext(file)[1] != ".fcg":
-                continue
+    return graphs
 
-            g = pickle.loads(z.open(file).read())
-            g = unify_fcg(g)
-            graphs.append(g)
+
+def load_fcg_zip(zfile):
+    """ Load graphs in FCG format from zip archive """
+
+    graphs = []
+    z = zf.ZipFile(zfile)
+    for fn in tqdm(z.namelist(), "Loading"):
+        if fn.endswith("/"):
+            continue
+        g = pickle.loads(z.open(fn).read())
+        g = unify_fcg(g)
+        graphs.append(g)
 
     return graphs
 
@@ -66,6 +71,19 @@ def unify_fcg(g):
 
     return g
 
+
+def save_libsvm(fn, fvecs, label):
+    f = open(fn, "w")
+
+    for fvec in tqdm(fvecs, "Saving"):
+        f.write("%d" % label)
+        for dim in sorted(fvec):
+            if fvec[dim] < 1e-9:
+                continue
+            f.write(" %d:%g" % (dim, fvec[dim]))
+        f.write("\n")
+
+    f.close()
 
 def murmur3(data, seed=0):
     """ Implementation of Murmur 3 hash by Maurus Decimus """

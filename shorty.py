@@ -65,6 +65,4 @@ def bag_to_fvec(bag, bits=24, hashs={}):
 
     return fvec
 
-graphs = utils.load_fcg("sample.zip")
-bags = utils.pbmap(bag_of_neighbors, graphs)
-fvecs = utils.pbmap(bag_to_fvec, bags)
+

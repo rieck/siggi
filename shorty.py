@@ -1,8 +1,10 @@
 # Shorty - Shortest-Path Graph Embedding
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
-import utils
 import sys
+import networkx as nx
+import utils
+from collections import defaultdict
 
 
 def bag_of_labels(graph):
@@ -45,6 +47,127 @@ def bag_of_neighbors(graph):
     return bag
 
 
+def bag_of_closure(graph):
+    """ Build bag of transitive closure for graph """
+
+    bag = {}
+    for i in graph.nodes():
+        for j in nx.ancestors(graph, i):
+            label = "%s:%s" % (graph.node[i]["label"], graph.node[j]["label"])
+            if label not in bag:
+                bag[label] = 0
+            bag[label] += 1
+
+    return bag
+
+
+def bag_of_shortest_paths(graph, maxlen=None):
+    """ Build bag of shortest path for graph """
+
+    paths = nx.all_pairs_shortest_path(graph, cutoff=maxlen)
+
+    bag = {}
+    for i in paths:
+        for j in paths[i]:
+            # Ignore direct relations
+            if i == j:
+                continue
+
+            label = "%s:%s" % (graph.node[i]["label"], graph.node[j]["label"])
+            if label not in bag:
+                bag[label] = 0.0
+
+            # Add 1/length, such that 0 is a non-existent path
+            bag[label] += 1.0 / len(paths[i][j])
+
+    return bag
+
+
+def bag_of_cliques(graph, k):
+    """ Build bag of k-cliques for graph """
+
+    bag = {}
+    for nodes in nx.k_clique_communities(graph, k):
+        ns = map(lambda x: graph.node[x]["label"], nodes)
+        label = '-'.join(sorted(ns))
+        if label not in bag:
+            bag[label] = 0
+        bag[label] += 1
+
+    return bag
+
+
+def bag_of_components(graph, type="strongly connected"):
+    """ Build bag of components for graph """
+
+    if type == "attracting":
+        comp = nx.attracting_components(graph)
+    elif type == "strongly connected":
+        comp = nx.strongly_connected_components(graph)
+    elif type == "weakly connected":
+        comp = nx.weakly_connected_components(graph)
+    elif type == "biconnected":
+        comp = nx.biconnected_components(graph)
+    else:
+        raise Exception("Unknown connectivity type")
+
+    bag = {}
+    for nodes in comp:
+        ns = map(lambda x: graph.node[x]["label"], nodes)
+        label = '-'.join(sorted(ns))
+        if label not in bag:
+            bag[label] = 0
+        bag[label] += 1
+
+    return bag
+
+
+def floyd_warshall(graph, semiring=None, weight='weight'):
+    """ Find all-pairs shortest path lengths using Floyd's algorithm. """
+
+    # Adapted From NetworkX. Copyright (C) 2004-2012 by
+    # Aric Hagberg <hagberg@lanl.gov>, Dan Schult <dschult@colgate.edu>
+    # Pieter Swart <swart@lanl.gov> All rights reserved.  BSD license.
+
+    if not semiring:
+        semiring = {
+            "plus": lambda x, y: x + y,
+            "zero": 0.0,
+            "prod": lambda x, y: min(x, y),
+            "one": float("inf"),
+        }
+
+    # dictionary-of-dictionaries representation for dist and pred
+    # use some defaultdict magick here
+    # for dist the default is the floating point inf value
+    dist = defaultdict(lambda: defaultdict(lambda: semiring["one"]))
+    for u in graph:
+        dist[u][u] = semiring["zero"]
+    pred = defaultdict(dict)
+
+    # initialize path distance dictionary to be the adjacency matrix
+    # also set the distance to self to 0 (zero diagonal)
+    undirected = not graph.is_directed()
+    for u, v, d in graph.edges(data=True):
+        e_weight = d.get(weight, 1.0)
+        dist[u][v] = min(e_weight, dist[u][v])
+        pred[u][v] = u
+        if undirected:
+            dist[v][u] = min(e_weight, dist[v][u])
+            pred[v][u] = v
+
+    for w in graph:
+        for u in graph:
+            for v in graph:
+                a = semiring["plus"](dist[u][w], dist[w][v])
+                b = dist[u][v]
+                dist[u][v] = semiring["prod"](a, b)
+                if dist[u][v] != b:
+                    pred[u][v] = pred[w][v]
+
+    return dict(pred), dict(dist)
+
+
 def bag_to_fvec(bag, bits=24, hashs={}):
     """ Map bag to sparse feature vector """
 
@@ -69,7 +192,5 @@ def bag_to_fvec(bag, bits=24, hashs={}):
 
 print "Loading FCG graphs..."
 graphs = utils.load_fcg_zip(sys.argv[1])
-print "Saving DOT graphs..."
-utils.save_dot_zip(graphs, "foobar.zip")
-print "Loading DOT graphs..."
-graphs = utils.load_dot_zip("foobar.zip")
+print "Embed closure..."
+bag1 = bag_of_shortest_paths(graphs[0])

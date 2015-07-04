@@ -47,16 +47,24 @@ def bag_of_neighbors(graph):
     return bag
 
 
-def bag_of_closure(graph):
+def bag_of_closure(graph, maxlen=None, weight_len=False):
     """ Build bag of transitive closure for graph """
 
+    paths = nx.all_pairs_shortest_path(graph, cutoff=maxlen)
+
     bag = {}
-    for i in graph.nodes():
-        for j in nx.ancestors(graph, i):
+    for i in paths:
+        for j in paths[i]:
+            if i == j:
+                continue
             label = "%s:%s" % (graph.node[i]["label"], graph.node[j]["label"])
+
             if label not in bag:
-                bag[label] = 0
-            bag[label] += 1
+                bag[label] = 0.0
+            if not weight_len:
+                bag[label] += 1.0
+            else:
+                bag[label] += 1.0 / (len(paths[i][j]) - 1)
 
     return bag
 
@@ -69,16 +77,11 @@ def bag_of_shortest_paths(graph, maxlen=None):
     bag = {}
     for i in paths:
         for j in paths[i]:
-            # Ignore direct relations
-            if i == j:
-                continue
-
-            label = "%s:%s" % (graph.node[i]["label"], graph.node[j]["label"])
+            path = map(lambda x: graph.node[x]["label"], paths[i][j])
+            label = '-'.join(path)
             if label not in bag:
                 bag[label] = 0.0
-
-            # Add 1/length, such that 0 is a non-existent path
-            bag[label] += 1.0 / len(paths[i][j])
+            bag[label] += 1.0
 
     return bag
 
@@ -193,4 +196,7 @@ def bag_to_fvec(bag, bits=24, hashs={}):
 print "Loading FCG graphs..."
 graphs = utils.load_fcg_zip(sys.argv[1])
 print "Embed closure..."
-bag1 = bag_of_shortest_paths(graphs[0])
+bag1 = bag_of_closure(graphs[2])
+bag2 = bag_of_closure(graphs[2], weight_len = True)
+#bag1 = bag_of_shortest_paths(graphs[0])
+#x,y = floyd_warshall(graphs[0])

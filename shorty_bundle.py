@@ -11,12 +11,12 @@ parser = argparse.ArgumentParser(
     description='Convert and bundle graph representations.'
 )
 parser.add_argument(
-    'fcg2dot', type=bool, default=False,
+    '--fcg2dot', action='store_true', default=False,
     help='convert FCG graph bundles to DOT graph bundles'
 )
 parser.add_argument(
-    'bundles', metavar='bundle', type=string, nargs='+',
-    help='graph bundles to process'
+    'bundles', metavar='bundle', nargs='+',
+    help='graph bundles as zip archives'
 )
 args = parser.parse_args()
 

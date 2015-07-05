@@ -47,6 +47,11 @@ def bag_of_neighbors(graph):
     return bag
 
 
+def bag_of_weighted_closure(graph, maxlen=None):
+    """ Build bag of transitive closure for graph """
+    return bag_of_closure(graph, weight_len=True, maxlen=maxlen)
+
+
 def bag_of_closure(graph, maxlen=None, weight_len=False):
     """ Build bag of transitive closure for graph """
 
@@ -67,7 +72,6 @@ def bag_of_closure(graph, maxlen=None, weight_len=False):
                 bag[label] += 1.0 / (len(paths[i][j]) - 1)
 
     return bag
-
 
 def bag_of_shortest_paths(graph, maxlen=None):
     """ Build bag of shortest path for graph """
@@ -100,19 +104,32 @@ def bag_of_cliques(graph, k):
     return bag
 
 
-def bag_of_components(graph, type="strongly connected"):
-    """ Build bag of components for graph """
+def bag_of_strongly_connected_components(graph):
+    """ Bag of strongly connected components """
+    comp = nx.strongly_connected_components(graph)
+    return bag_of_components(graph, comp)
 
-    if type == "attracting":
-        comp = nx.attracting_components(graph)
-    elif type == "strongly connected":
-        comp = nx.strongly_connected_components(graph)
-    elif type == "weakly connected":
-        comp = nx.weakly_connected_components(graph)
-    elif type == "biconnected":
-        comp = nx.biconnected_components(graph)
-    else:
-        raise Exception("Unknown connectivity type")
+
+def bag_of_weakly_connected_components(graph):
+    """ Bag of weakly connected components """
+    comp = nx.weakly_connected_components(graph)
+    return bag_of_components(graph, comp)
+
+
+def bag_of_biconnected_components(graph):
+    """ Bag of bi-connected components """
+    comp = nx.biconnected_components(graph)
+    return bag_of_components(graph, comp)
+
+
+def bag_of_attracting_components(graph):
+    """ Bag of attracting components """
+    comp = nx.attracting_components(graph)
+    return bag_of_components(graph, comp)
+
+
+def bag_of_components(graph, comp):
+    """ Build bag of components for graph """
 
     bag = {}
     for nodes in comp:

@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser(
     description='Convert and bundle graph representations.'
 )
 parser.add_argument(
-    '--fcg2dot', action='store_true', default=False,
+    '-d', '--fcg2dot', action='store_true', default=False,
     help='convert FCG graph bundles to DOT graph bundles'
 )
 parser.add_argument(
@@ -22,7 +22,6 @@ args = parser.parse_args()
 
 for bundle in args.bundles:
     base, ext = os.path.splitext(bundle)
-    nf = "%s-dot%s" % (base, ext)
 
     if ext != ".zip":
         print "Skipping %s. Not a bundle" % bundle
@@ -30,11 +29,12 @@ for bundle in args.bundles:
 
     # FCG to DOT conversion
     if args.fcg2dot:
+        nf = "%s-dot%s" % (base, ext)
         if base.endswith("-dot"):
             print "Skipping %s. Already a DOT bundle" % bundle
             continue
         if os.path.exists(nf):
-            print "Skipping %s. DOT bundle present" % bundl
+            print "Skipping %s. DOT bundle present" % bundle
             continue
 
         print "Loading FCG graphs from bundle %s" % bundle

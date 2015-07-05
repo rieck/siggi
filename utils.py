@@ -86,13 +86,20 @@ def save_dot_zip(graphs, filename):
     archive.close()
 
 
-def save_libsvm(filename, fvecs, label):
+def save_libsvm(filename, fvecs, label=None, append=False):
     """ Save feature vectors to libsvm file """
 
-    f = open(filename, "w")
+    if not append:
+        f = open(filename, "w")
+    else:
+        f = open(filename, "a")
 
     for fvec in fvecs:
-        f.write("%d" % label)
+        if not label:
+            f.write("?")
+        else:
+            f.write("%d" % label)
+
         for dim in sorted(fvec):
             if fvec[dim] < 1e-9:
                 continue

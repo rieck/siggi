@@ -7,8 +7,8 @@ import utils
 from collections import defaultdict
 
 
-def bag_of_labels(graph):
-    """ Build bag of labels from graph """
+def bag_of_nodes(graph):
+    """ Build bag of nodes from graph """
 
     bag = {}
     for i in graph.nodes():
@@ -191,12 +191,3 @@ def bag_to_fvec(bag, bits=24, hashs={}):
             hashs[dim].append(key)
 
     return fvec
-
-
-print "Loading FCG graphs..."
-graphs = utils.load_fcg_zip(sys.argv[1])
-print "Embed closure..."
-bag1 = bag_of_closure(graphs[2])
-bag2 = bag_of_closure(graphs[2], weight_len = True)
-#bag1 = bag_of_shortest_paths(graphs[0])
-#x,y = floyd_warshall(graphs[0])

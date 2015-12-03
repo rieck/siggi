@@ -1,5 +1,5 @@
 
-Siggie - A Tool for Embedding Graphs in Vector Spaces
+Siggie - A Simple Tool for Graph Embedding
 ==
 
 Overview

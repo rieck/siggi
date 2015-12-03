@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Shorty - Shortest-Path Graph Embedding
+# Siggie - A Simple Tool for Graph Embeddi
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import argparse
@@ -7,7 +7,7 @@ from multiprocessing import Pool
 import fnmatch
 
 import utils
-import shorty
+import siggie
 
 parser = argparse.ArgumentParser(
     description='Embed graphs in a vector space.'
@@ -17,27 +17,19 @@ parser.add_argument(
     help='output file in libsvm format'
 )
 parser.add_argument(
-    'bundles', metavar='bundle', nargs='+',
-    help='graph bundles as zip archives'
+    'bundles', metavar='bundles', nargs='+',
+    help='graph bundles (DOT files in Zip archives)'
 )
 parser.add_argument(
     '-b', '--bags', metavar='mode', default=0, type=int,
     help='bag mode for embedding'
-)
-parser.add_argument(
-    '-n', '--negative', metavar='mask', default='malware*',
-    help='file mask for bundles of negative class'
-)
-parser.add_argument(
-    '-p', '--positive', metavar='mask', default='market*',
-    help='file mask for bundles of positive class'
 )
 
 args = parser.parse_args()
 pool = Pool()
 
 for i, bundle in enumerate(args.bundles):
-    print "Loading DOT graphs from bundle %s" % bundle
+    print "Loading graphs from bundle %s" % bundle
     graphs = utils.load_dot_zip(bundle)
 
     if args.bags == 0:
@@ -74,12 +66,7 @@ for i, bundle in enumerate(args.bundles):
     fvecs = pool.map(shorty.bag_to_fvec, bags)
     del bags
 
-    label = None
-    if fnmatch.fnmatch(bundle, args.negative):
-        label = -1
-    elif fnmatch.fnmatch(bundle, args.positive):
-        label = +1
-
+    label = 1
     if i == 0:
         print "Saving feature vectors to %s" % args.output
         utils.save_libsvm(args.output, fvecs, label=label)

@@ -1,4 +1,4 @@
-# Shorty - Shortest-Path Graph Embedding
+# Siggie - A Simple Tool for Graph Embedding
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import pickle
@@ -7,45 +7,6 @@ from multiprocessing import Pool
 
 import pygraphviz as pg
 import networkx as nx
-
-
-def load_fcg_zip(filename):
-    """ Load FCG graphs from zip archive """
-
-    pool = Pool()
-    archive = zf.ZipFile(filename)
-    entries = [(archive, entry) for entry in archive.namelist()]
-
-    graphs = pool.map(load_fcg_entry, entries)
-
-    pool.close()
-    pool.join()
-    archive.close()
-
-    return filter(lambda g: g, graphs)
-
-
-def load_fcg_entry((archive, entry)):
-    """ Load one FCG graph from zip archive """
-
-    if entry.endswith("/") or not entry.endswith(".fcg"):
-        return None
-
-    g = pickle.loads(archive.open(entry).read())
-
-    # Map nodes to indices for simplicity
-    mapping = dict(zip(g.nodes(), range(len(g.nodes()))))
-    g = nx.relabel_nodes(g, mapping)
-
-    # Add original node labels and fix label
-    inverse = {v: k for k, v in mapping.items()}
-    for key in g.nodes():
-        obj = ''.join(inverse[key][:-1]).decode("ascii", "ignore")
-        g.node[key]["obj"] = obj
-        label = g.node[key]["label"]
-        g.node[key]["label"] = ''.join(map(str, label))
-
-    return g
 
 
 def load_dot_zip(filename):

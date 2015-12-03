@@ -1,4 +1,4 @@
-# Shorty - Shortest-Path Graph Embedding
+# Siggie - A Simple Tool for Graph Embedding
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import sys

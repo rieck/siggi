@@ -3,8 +3,8 @@
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import argparse
+from itertools import repeat
 from multiprocessing import Pool
-import fnmatch
 
 import utils
 import siggie
@@ -23,20 +23,27 @@ modes = {
 }
 
 # Parse arguments
-parser = argparse.ArgumentParser(description='Embed graphs in a vector space.')
-parser.add_argument('-o', '--output', metavar='file', default="output.libsvm",
-                    help='output file in libsvm format')
-parser.add_argument('bundles', metavar='bundles', nargs='+',
-                    help='graph bundles (DOT files in Zip archives)')
-parser.add_argument('-b', '--bags', metavar='mode', default=0, type=int,
-                    help='bag mode for embedding')
+parser = argparse.ArgumentParser(
+    description='Embed graphs in a vector space.',
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
+parser.add_argument('bundle', metavar='bundle', nargs='+',
+                    help='graph bundle (zip archive of DOT files)')
+parser.add_argument('-o', '--output', metavar='F', default="output.libsvm",
+                    help='set output file')
+parser.add_argument('-m', '--mode', metavar='N', default=0, type=int,
+                    help='set bag mode for embedding')
+parser.add_argument('-l', '--label', metavar='R', default="^\d+_",
+                    help='set regex for labels in filenames')
+parser.add_argument('-b', '--bits', metavar='N', default=24, type=int,
+                    help='set bits for feature hashing')
 args = parser.parse_args()
 
 # Initialize pool for multi-threading
 pool = Pool()
 
 # Loop over bundles on command line
-for i, bundle in enumerate(args.bundles):
+for i, bundle in enumerate(args.bundle):
     print "Loading graphs from bundle %s" % bundle
     graphs = utils.load_dot_zip(bundle)
 
@@ -51,10 +58,11 @@ for i, bundle in enumerate(args.bundles):
 
     del graphs
 
-    fvecs = pool.map(siggie.bag_to_fvec, bags)
+    # Convert bags to feature vectors
+    fvecs = pool.map(siggie.bag_to_fvec, bags, repeat(args.bits))
     del bags
 
-    label = 1
+    label = 1   # Fixme
     if i == 0:
         print "Saving feature vectors to %s" % args.output
         utils.save_libsvm(args.output, fvecs, label=label)

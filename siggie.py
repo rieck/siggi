@@ -189,7 +189,7 @@ def floyd_warshall(graph, semiring=None, weight='weight'):
     return dict(pred), dict(dist)
 
 
-def bag_to_fvec(bag, bits=24, hashs={}):
+def bag_to_fvec(bag, bits, hashs={}):
     """ Map bag to sparse feature vector """
 
     fvec = {}

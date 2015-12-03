@@ -73,6 +73,7 @@ def bag_of_closure(graph, maxlen=None, weight_len=False):
 
     return bag
 
+
 def bag_of_shortest_paths(graph, maxlen=None):
     """ Build bag of shortest path for graph """
 

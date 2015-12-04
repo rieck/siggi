@@ -3,11 +3,11 @@
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import argparse
-from itertools import repeat
+from functools import partial
 from multiprocessing import Pool
 
-import utils
 import siggie
+import utils
 
 # Supported modes for embedding
 modes = {
@@ -33,7 +33,7 @@ parser.add_argument('-o', '--output', metavar='F', default="output.libsvm",
                     help='set output file')
 parser.add_argument('-m', '--mode', metavar='N', default=0, type=int,
                     help='set bag mode for embedding')
-parser.add_argument('-l', '--label', metavar='R', default="^\d+_",
+parser.add_argument('-l', '--label', metavar='R', default="^\d+",
                     help='set regex for labels in filenames')
 parser.add_argument('-b', '--bits', metavar='N', default=24, type=int,
                     help='set bits for feature hashing')
@@ -44,28 +44,25 @@ pool = Pool()
 
 # Loop over bundles on command line
 for i, bundle in enumerate(args.bundle):
-    print "Loading graphs from bundle %s" % bundle
-    graphs = utils.load_dot_zip(bundle)
+    print "= Loading graphs from bundle %s" % bundle
+    graphs, labels = utils.load_dot_zip(bundle, args.label)
 
-    for mode, func in modes.items():
-        if args.bags == mode:
-            print "Embedding using bag of %s" % func.replace("_", " ")
-
-            # Get function from string
-            possibles = globals().copy()
-            possibles.update(locals())
-            bags = pool.map(possibles.get(func), graphs)
-
+    for mode, fname in modes.items():
+        if args.mode == mode:
+            print "= Embedding graphs using %s" % fname.replace("_", " ")
+            bags = pool.map(getattr(siggie, fname), graphs)
+            break
     del graphs
 
     # Convert bags to feature vectors
-    fvecs = pool.map(siggie.bag_to_fvec, bags, repeat(args.bits))
+    print "= Converting bags to feature vectors"
+    func = partial(siggie.bag_to_fvec, bits=args.bits)
+    fvecs = pool.map(func, bags)
     del bags
 
-    label = 1   # Fixme
     if i == 0:
-        print "Saving feature vectors to %s" % args.output
-        utils.save_libsvm(args.output, fvecs, label=label)
+        print "= Saving feature vectors to %s" % args.output
+        utils.save_libsvm(args.output, fvecs, labels)
     else:
-        print "Appending feature vectors to %s" % args.output
-        utils.save_libsvm(args.output, fvecs, label=label, append=True)
+        print "= Appending feature vectors to %s" % args.output
+        utils.save_libsvm(args.output, fvecs, labels, append=True)

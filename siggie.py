@@ -2,9 +2,11 @@
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import sys
-import networkx as nx
-import utils
 from collections import defaultdict
+
+import networkx as nx
+
+import utils
 
 
 def bag_of_nodes(graph):
@@ -189,7 +191,7 @@ def floyd_warshall(graph, semiring=None, weight='weight'):
     return dict(pred), dict(dist)
 
 
-def bag_to_fvec(bag, bits, hashs={}):
+def bag_to_fvec(bag, bits=24, hashs={}):
     """ Map bag to sparse feature vector """
 
     fvec = {}

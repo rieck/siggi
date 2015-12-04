@@ -1,38 +1,46 @@
 # Siggie - A Simple Tool for Graph Embedding
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
-import pickle
+import os
+import re
 import zipfile as zf
+from functools import partial
 from multiprocessing import Pool
 
-import pygraphviz as pg
 import networkx as nx
+import pygraphviz as pg
 
 
-def load_dot_zip(filename):
+def load_dot_zip(filename, label):
     """ Load DOT graphs from zip archive """
 
     pool = Pool()
     archive = zf.ZipFile(filename)
 
     entries = [(archive, entry) for entry in archive.namelist()]
-    graphs = pool.map(load_dot_entry, entries)
+    func = partial(load_dot_entry, regex=re.compile(label))
+    items = pool.map(func, entries)
+    items = filter(lambda (g, l): g is not None, items)
+    graphs, labels = zip(*items)
 
     archive.close()
     pool.close()
     pool.join()
 
-    return filter(lambda g: g, graphs)
+    return graphs, labels
 
 
-def load_dot_entry((archive, entry)):
+def load_dot_entry((archive, entry), regex="^\d+"):
     """ Load one DOT graph from zip archive """
 
     if entry.endswith("/") or not entry.endswith(".dot"):
-        return None
+        return None, 0
 
     dot = pg.AGraph(archive.open(entry).read())
-    return nx.from_agraph(dot)
+    match = regex.match(os.path.basename(entry))
+    label = int(match.group(0)) if match else 0
+
+    return nx.from_agraph(dot), label
 
 
 def save_dot_zip(graphs, filename):
@@ -47,7 +55,7 @@ def save_dot_zip(graphs, filename):
     archive.close()
 
 
-def save_libsvm(filename, fvecs, label=None, append=False):
+def save_libsvm(filename, fvecs, labels, append=False):
     """ Save feature vectors to libsvm file """
 
     if not append:
@@ -55,12 +63,8 @@ def save_libsvm(filename, fvecs, label=None, append=False):
     else:
         f = open(filename, "a")
 
-    for fvec in fvecs:
-        if not label:
-            f.write("?")
-        else:
-            f.write("%d" % label)
-
+    for fvec, label in zip(fvecs, labels):
+        f.write("%d" % label)
         for dim in sorted(fvec):
             if fvec[dim] < 1e-9:
                 continue

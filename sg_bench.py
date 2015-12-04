@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Siggie - A Simple Tool for Graph Embedding
+# Siggie - Feature Hashing for Labeled Graphs
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import argparse
@@ -14,7 +14,7 @@ import utils
 
 # Parse arguments
 parser = argparse.ArgumentParser(
-    description='Benchmark graph embeddings.',
+    description='Benchmark feature hashing.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument('bundle', metavar='bundle', nargs='+',
@@ -35,7 +35,7 @@ for i, bundle in enumerate(args.bundle):
     graphs, _ = utils.load_dot_zip(bundle)
     testset.extend(graphs)
 
-print "= Benchmarking each embedding mode for %d seconds" % args.time
+print "= Benchmarking each mode for %d seconds" % args.time
 for mode, fname in siggie.modes.items():
     times = []
     while np.sum(times) < args.time:

@@ -1,4 +1,4 @@
-# Siggie - A Simple Tool for Graph Embedding
+# Siggie - Feature Hashing for Labeled Graph
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import os

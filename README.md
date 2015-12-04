@@ -1,22 +1,22 @@
 
-# Siggie - A Simple Tool for Graph Embedding
+# Siggie
+
+Feature Hashing for Labeld Graphs.
 
 ## Overview
 
-Siggie is a simple tool for mapping a set of graphs to a set of
-vectors. This mapping is referred to as graph embedding and allows for
-applying techniques of machine learning and data mining to graphs.
-
-Siggie implements a classic bag-of-words model for graphs. That is, a
-graph is characterized by the occurences of subgraphs, where each
-subgraph corresponds to one dimension of the vector space. Siggie
-supports subgraphs of different complexity, which range from nodes and
-edges to paths, componenents and closures.
+Siggie is a simple tool for mapping a set of labeled graphs to vectors.
+The tool implements the classic bag-of-words model using hashes of
+subgraphs. That is, a labeled graph is characterized by the hashes of
+selected subgraphs, where each hash corresponds to one dimension of the
+vector space. Siggie supports subgraphs of different complexity, which
+range from the set of nodes and edges to connected componenents, cliques
+and closures.
 
 ## Limitations
 
-Siggie does not support extracting arbitrary subgraphs, enumerating
-graphlets as well as solving the subgraph isomorphism problem. Sorry,
-it is a simple tool for a simple task.
+Siggie does not support extracting arbitrary subgraphs, as well as
+solving the subgraph isomorphism problem. It is a simple tool for a
+simple task.
 
 Have fun, Konrad

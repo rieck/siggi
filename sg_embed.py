@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Siggie - A Simple Tool for Graph Embedding
+# Siggie - Feature Hashing for Labeled Graphs
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import argparse
@@ -11,7 +11,7 @@ import utils
 
 # Parse arguments
 parser = argparse.ArgumentParser(
-    description='Embed graphs in a vector space.',
+    description='Map graphs to vectors.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument('bundle', metavar='bundle', nargs='+',
@@ -19,7 +19,7 @@ parser.add_argument('bundle', metavar='bundle', nargs='+',
 parser.add_argument('-o', '--output', metavar='F', default="output.libsvm",
                     help='set output file')
 parser.add_argument('-m', '--mode', metavar='N', default=0, type=int,
-                    help='set bag mode for embedding')
+                    help='set bag mode for feature hashing')
 parser.add_argument('-l', '--label', metavar='R', default="^\d+",
                     help='set regex for labels in filenames')
 parser.add_argument('-b', '--bits', metavar='N', default=24, type=int,
@@ -38,7 +38,7 @@ for i, bundle in enumerate(args.bundle):
 
     for mode, fname in siggie.modes.items():
         if args.mode == mode:
-            print "= Embedding graphs using %s" % fname.replace("_", " ")
+            print "= Hashing graphs using %s" % fname.replace("_", " ")
             bags = pool.map(getattr(siggie, fname), graphs)
             break
     del graphs

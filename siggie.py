@@ -1,4 +1,4 @@
-# Siggie - A Simple Tool for Graph Embedding
+# Siggie - Feature Hashing for Labeled Graphs
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import sys
@@ -9,7 +9,7 @@ import networkx as nx
 import utils
 
 
-# Supported modes for embedding
+# Supported modes for bags
 modes = {
     0: "bag_of_nodes",
     1: "bag_of_edges",

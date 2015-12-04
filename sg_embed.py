@@ -24,6 +24,8 @@ parser.add_argument('-l', '--label', metavar='R', default="^\d+",
                     help='set regex for labels in filenames')
 parser.add_argument('-b', '--bits', metavar='N', default=24, type=int,
                     help='set bits for feature hashing')
+parser.add_argument('-f', '--fmap', metavar='F', default=None,
+                    help='store feature mapping in file')
 args = parser.parse_args()
 
 # Initialize pool for multi-threading
@@ -43,8 +45,9 @@ for i, bundle in enumerate(args.bundle):
 
     # Convert bags to feature vectors
     print "= Converting bags to feature vectors"
-    func = partial(siggie.bag_to_fvec, bits=args.bits)
-    fvecs = pool.map(func, bags)
+    func = partial(siggie.bag_to_fvec, bits=args.bits, fmap=args.fmap)
+    items = pool.map(func, bags)
+    fvecs, fmaps = zip(*items)
     del bags
 
     if i == 0:
@@ -53,3 +56,7 @@ for i, bundle in enumerate(args.bundle):
     else:
         print "= Appending feature vectors to %s" % args.output
         utils.save_libsvm(args.output, fvecs, labels, append=True)
+
+if args.fmap:
+    print "= Saving feature map to %s" % args.fmap
+    utils.save_fmap(args.fmap, fmaps)

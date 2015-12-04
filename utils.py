@@ -3,6 +3,7 @@
 
 import os
 import re
+import json
 import zipfile as zf
 from functools import partial
 from multiprocessing import Pool
@@ -72,6 +73,24 @@ def save_libsvm(filename, fvecs, labels, append=False):
         f.write("\n")
 
     f.close()
+
+
+def save_fmap(filename, fmaps):
+    """ Save feature map in json format """
+
+    # Merge feature maps from concurrent runs
+    final = fmaps[0]
+
+    for fm in fmaps[1:]:
+        for k in fm:
+            if k not in final:
+                final[k] = fm[k]
+            else:
+                final[k].union(fm[k])
+
+    # Convert to lists
+    final.update({k : list(v) for k, v in final.iteritems()})
+    json.dump(final, open(filename, "w"))
 
 
 def murmur3(data, seed=0):

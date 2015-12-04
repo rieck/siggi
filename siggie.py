@@ -205,10 +205,12 @@ def floyd_warshall(graph, semiring=None, weight='weight'):
     return dict(pred), dict(dist)
 
 
-def bag_to_fvec(bag, bits=24, hashs={}):
+def bag_to_fvec(bag, bits=24, fmap=None):
     """ Map bag to sparse feature vector """
 
     fvec = {}
+    hashes = {}
+
     for key in bag:
         hash = utils.murmur3(key)
         dim = hash & (1 << bits) - 1
@@ -219,9 +221,10 @@ def bag_to_fvec(bag, bits=24, hashs={}):
         fvec[dim] += sign * bag[key]
 
         # Store dim-key mapping
-        if dim not in hashs:
-            hashs[dim] = []
-        if key not in hashs[dim]:
-            hashs[dim].append(key)
+        if fmap:
+            if dim not in hashes:
+                hashes[dim] = set()
+            if key not in hashes[dim]:
+                hashes[dim].add(key)
 
-    return fvec
+    return fvec, hashes if fmap else None

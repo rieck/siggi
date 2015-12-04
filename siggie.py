@@ -15,7 +15,7 @@ modes = {
     1: "bag_of_edges",
     2: "bag_of_neighbors",
     3: "bag_of_weakly_connected_components",
-    4: "bag_of_strong_connected_components",
+    4: "bag_of_strongly_connected_components",
     5: "bag_of_attracting_components",
     6: "bag_of_closure",
     7: "bag_of_weighted_closure",

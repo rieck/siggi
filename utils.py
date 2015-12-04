@@ -11,7 +11,7 @@ import networkx as nx
 import pygraphviz as pg
 
 
-def load_dot_zip(filename, label):
+def load_dot_zip(filename, label="^$"):
     """ Load DOT graphs from zip archive """
 
     pool = Pool()

@@ -1,2 +1,3 @@
 *.pyc
+*.libsvm
 .idea

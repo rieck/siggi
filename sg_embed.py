@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Siggie - A Simple Tool for Graph Embeddi
+# Siggie - A Simple Tool for Graph Embedding
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import argparse

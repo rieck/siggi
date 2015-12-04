@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument('bundle', metavar='bundle', nargs='+',
                     help='graph bundle (zip archive of DOT files)')
-parser.add_argument('-t', '--time', metavar='N', default=1,
+parser.add_argument('-t', '--time', metavar='N', default=2,
                     help='number of seconds to benchmark')
 parser.add_argument('-b', '--bits', metavar='N', default=24, type=int,
                     help='set bits for feature hashing')

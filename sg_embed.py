@@ -9,19 +9,6 @@ from multiprocessing import Pool
 import siggie
 import utils
 
-# Supported modes for embedding
-modes = {
-    0: "bag_of_nodes",
-    1: "bag_of_edges",
-    2: "bag_of_neighbors",
-    3: "bag_of_weakly_connected_components",
-    4: "bag_of_strong_connected_components",
-    5: "bag_of_attracting_components",
-    6: "bag_of_closure",
-    7: "bag_of_weighted_closure",
-    8: "bag_of_shortest_paths",
-}
-
 # Parse arguments
 parser = argparse.ArgumentParser(
     description='Embed graphs in a vector space.',
@@ -47,7 +34,7 @@ for i, bundle in enumerate(args.bundle):
     print "= Loading graphs from bundle %s" % bundle
     graphs, labels = utils.load_dot_zip(bundle, args.label)
 
-    for mode, fname in modes.items():
+    for mode, fname in siggie.modes.items():
         if args.mode == mode:
             print "= Embedding graphs using %s" % fname.replace("_", " ")
             bags = pool.map(getattr(siggie, fname), graphs)

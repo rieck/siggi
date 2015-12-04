@@ -9,6 +9,20 @@ import networkx as nx
 import utils
 
 
+# Supported modes for embedding
+modes = {
+    0: "bag_of_nodes",
+    1: "bag_of_edges",
+    2: "bag_of_neighbors",
+    3: "bag_of_weakly_connected_components",
+    4: "bag_of_strong_connected_components",
+    5: "bag_of_attracting_components",
+    6: "bag_of_closure",
+    7: "bag_of_weighted_closure",
+    8: "bag_of_shortest_paths",
+}
+
+
 def bag_of_nodes(graph):
     """ Build bag of nodes from graph """
 

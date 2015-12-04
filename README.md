@@ -1,7 +1,7 @@
 
 # Siggie
 
-Feature Hashing for Labeld Graphs.
+Feature Hashing for Labeled Graphs.
 
 ## Overview
 

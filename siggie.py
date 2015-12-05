@@ -152,52 +152,6 @@ def bag_of_components(graph, comp):
     return bag
 
 
-def floyd_warshall(graph, semiring=None, weight='weight'):
-    """ Find all-pairs shortest path lengths using Floyd's algorithm. """
-
-    # Adapted From NetworkX. Copyright (C) 2004-2012 by
-    # Aric Hagberg <hagberg@lanl.gov>, Dan Schult <dschult@colgate.edu>
-    # Pieter Swart <swart@lanl.gov> All rights reserved.  BSD license.
-
-    if not semiring:
-        semiring = {
-            "plus": lambda x, y: x + y,
-            "zero": 0.0,
-            "prod": lambda x, y: min(x, y),
-            "one": float("inf"),
-        }
-
-    # dictionary-of-dictionaries representation for dist and pred
-    # use some defaultdict magick here
-    # for dist the default is the floating point inf value
-    dist = defaultdict(lambda: defaultdict(lambda: semiring["one"]))
-    for u in graph:
-        dist[u][u] = semiring["zero"]
-    pred = defaultdict(dict)
-
-    # initialize path distance dictionary to be the adjacency matrix
-    # also set the distance to self to 0 (zero diagonal)
-    undirected = not graph.is_directed()
-    for u, v, d in graph.edges(data=True):
-        e_weight = d.get(weight, 1.0)
-        dist[u][v] = min(e_weight, dist[u][v])
-        pred[u][v] = u
-        if undirected:
-            dist[v][u] = min(e_weight, dist[v][u])
-            pred[v][u] = v
-
-    for w in graph:
-        for u in graph:
-            for v in graph:
-                a = semiring["plus"](dist[u][w], dist[w][v])
-                b = dist[u][v]
-                dist[u][v] = semiring["prod"](a, b)
-                if dist[u][v] != b:
-                    pred[u][v] = pred[w][v]
-
-    return dict(pred), dict(dist)
-
-
 def bag_to_fvec(bag, bits=24, fmap=None):
     """ Map bag to sparse feature vector """
 

@@ -28,6 +28,11 @@ parser.add_argument('-f', '--fmap', metavar='F', default=None,
                     help='store feature mapping in file')
 parser.add_argument('-l', '--maxlen', metavar='N', default=3, type=int,
                     help='set maximum length of paths')
+parser.add_argument('-s', '--size', metavar='N', default=1, type=int,
+                    help='set size of neighborhoods and cliques')
+parser.add_argument('-d', '--depth', metavar='N', default=5, type=int,
+                    help='set depth of reachabilities')
+
 args = parser.parse_args()
 
 # Initialize pool for multi-threading
@@ -40,10 +45,8 @@ for i, bundle in enumerate(args.bundle):
 
     for mode, fname in siggie.modes.items():
         if args.mode == mode:
-            print "= Hashing graphs using %s" % fname.replace("_", " ")
-            func = getattr(siggie, fname)
-            if mode in [6, 7, 8]:
-                func = partial(func, maxlen=args.maxlen)
+            print "= Hashing graphs using %s" % siggie.mode_name(mode, args)
+            func = partial(getattr(siggie, fname), args=args)
             bags = pool.map(func, graphs)
             break
     del graphs

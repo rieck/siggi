@@ -13,16 +13,28 @@ import utils
 modes = {
     0: "bag_of_nodes",
     1: "bag_of_edges",
-    2: "bag_of_neighbors",
-    3: "bag_of_weakly_connected_components",
-    4: "bag_of_strongly_connected_components",
-    5: "bag_of_attracting_components",
-    6: "bag_of_transitive_closure",
-    7: "bag_of_shortest_paths",
+    2: "bag_of_weakly_connected_components",
+    3: "bag_of_strongly_connected_components",
+    4: "bag_of_attracting_components",
+    5: "bag_of_neighborhoods",
+    6: "bag_of_reachabilities",
+    7: "bag_of_shortest_paths"
 }
 
+def mode_name(mode, args):
+    """ Return the name and config of a bag mode """
 
-def bag_of_nodes(graph):
+    s = modes[mode].replace("_", " ")
+    if mode == 5:
+        s += " (size: %d)" % args.size
+    elif mode == 6:
+        s += " (depth: %d)" % args.depth
+    elif mode == 7:
+        s += " (maxlen: %d)" % args.maxlen
+    return s
+
+
+def bag_of_nodes(graph, args):
     """ Build bag of nodes from graph """
 
     bag = {}
@@ -35,7 +47,7 @@ def bag_of_nodes(graph):
     return bag
 
 
-def bag_of_edges(graph):
+def bag_of_edges(graph, args):
     """ Build bag of edges from graph """
 
     bag = {}
@@ -48,30 +60,39 @@ def bag_of_edges(graph):
     return bag
 
 
-def bag_of_neighbors(graph):
-    """ Build bag of neighbors from graph """
+def bag_of_neighborhoods(graph, args):
+    """ Build bag of neighborhoods for graph """
+
+    paths = nx.all_pairs_shortest_path(graph, cutoff=args.size)
 
     bag = {}
-    for i in graph.nodes():
-        ns = map(lambda x: graph.node[x]["label"], graph.neighbors(i))
+    for i in paths:
+        reachable = paths[i].keys()
+        if len(reachable) == 0:
+            continue
+
+        ns = map(lambda x: graph.node[x]["label"], reachable)
         label = "%s:%s" % (graph.node[i]["label"], '-'.join(sorted(ns)))
+
         if label not in bag:
-            bag[label] = 0
-        bag[label] += 1
+            bag[label] = 0.0
+        bag[label] += 1.0
 
     return bag
 
 
-def bag_of_transitive_closure(graph, maxlen=None):
-    """ Build bag of transitive closure for graph """
+def bag_of_reachabilities(graph, args):
+    """ Build bag of reachabilities for graph """
 
-    paths = nx.all_pairs_shortest_path(graph, cutoff=maxlen)
+    paths = nx.all_pairs_shortest_path(graph, cutoff=args.depth)
 
     bag = {}
     for i in paths:
-        for j in paths[i]:
-            if i == j:
-                continue
+        reachable = paths[i].keys()
+        if len(reachable) == 0:
+            continue
+
+        for j in reachable:
             label = "%s:%s" % (
                 graph.node[i]["label"], graph.node[j]["label"]
             )
@@ -83,10 +104,10 @@ def bag_of_transitive_closure(graph, maxlen=None):
     return bag
 
 
-def bag_of_shortest_paths(graph, maxlen=None):
+def bag_of_shortest_paths(graph, args):
     """ Build bag of shortest path for graph """
 
-    paths = nx.all_pairs_shortest_path(graph, cutoff=maxlen)
+    paths = nx.all_pairs_shortest_path(graph, cutoff=args.maxlen)
 
     bag = {}
     for i in paths:
@@ -100,39 +121,25 @@ def bag_of_shortest_paths(graph, maxlen=None):
     return bag
 
 
-def bag_of_cliques(graph, k):
-    """ Build bag of k-cliques for graph """
-
-    bag = {}
-    for nodes in nx.k_clique_communities(graph, k):
-        ns = map(lambda x: graph.node[x]["label"], nodes)
-        label = '-'.join(sorted(ns))
-        if label not in bag:
-            bag[label] = 0
-        bag[label] += 1
-
-    return bag
-
-
-def bag_of_strongly_connected_components(graph):
+def bag_of_strongly_connected_components(graph, args):
     """ Bag of strongly connected components """
     comp = nx.strongly_connected_components(graph)
     return bag_of_components(graph, comp)
 
 
-def bag_of_weakly_connected_components(graph):
+def bag_of_weakly_connected_components(graph, args):
     """ Bag of weakly connected components """
     comp = nx.weakly_connected_components(graph)
     return bag_of_components(graph, comp)
 
 
-def bag_of_biconnected_components(graph):
+def bag_of_biconnected_components(graph, args):
     """ Bag of bi-connected components """
     comp = nx.biconnected_components(graph)
     return bag_of_components(graph, comp)
 
 
-def bag_of_attracting_components(graph):
+def bag_of_attracting_components(graph, args):
     """ Bag of attracting components """
     comp = nx.attracting_components(graph)
     return bag_of_components(graph, comp)

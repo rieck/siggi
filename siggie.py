@@ -13,23 +13,23 @@ import utils
 modes = {
     0: "bag_of_nodes",
     1: "bag_of_edges",
-    2: "bag_of_weakly_connected_components",
-    3: "bag_of_strongly_connected_components",
-    4: "bag_of_attracting_components",
-    5: "bag_of_neighborhoods",
-    6: "bag_of_reachabilities",
-    7: "bag_of_shortest_paths"
+    2: "bag_of_neighborhoods",
+    3: "bag_of_reachabilities",
+    4: "bag_of_shortest_paths"
+    5: "bag_of_weakly_connected_components",
+    6: "bag_of_strongly_connected_components",
+    7: "bag_of_attracting_components",
 }
 
 def mode_name(mode, args):
     """ Return the name and config of a bag mode """
 
     s = modes[mode].replace("_", " ")
-    if mode == 5:
+    if mode == 2:
         s += " (size: %d)" % args.size
-    elif mode == 6:
+    elif mode == 3:
         s += " (depth: %d)" % args.depth
-    elif mode == 7:
+    elif mode == 4:
         s += " (maxlen: %d)" % args.maxlen
     return s
 
@@ -68,9 +68,6 @@ def bag_of_neighborhoods(graph, args):
     bag = {}
     for i in paths:
         reachable = paths[i].keys()
-        if len(reachable) == 0:
-            continue
-
         ns = map(lambda x: graph.node[x]["label"], reachable)
         label = "%s:%s" % (graph.node[i]["label"], '-'.join(sorted(ns)))
 

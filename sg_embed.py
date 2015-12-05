@@ -29,7 +29,7 @@ parser.add_argument('-f', '--fmap', metavar='F', default=None,
 parser.add_argument('-l', '--maxlen', metavar='N', default=3, type=int,
                     help='set maximum length of paths')
 parser.add_argument('-s', '--size', metavar='N', default=1, type=int,
-                    help='set size of neighborhoods and cliques')
+                    help='set size of neighborhoods')
 parser.add_argument('-d', '--depth', metavar='N', default=5, type=int,
                     help='set depth of reachabilities')
 

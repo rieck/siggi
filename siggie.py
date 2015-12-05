@@ -17,9 +17,8 @@ modes = {
     3: "bag_of_weakly_connected_components",
     4: "bag_of_strongly_connected_components",
     5: "bag_of_attracting_components",
-    6: "bag_of_closure",
-    7: "bag_of_weighted_closure",
-    8: "bag_of_shortest_paths",
+    6: "bag_of_transitive_closure",
+    7: "bag_of_shortest_paths",
 }
 
 
@@ -63,12 +62,7 @@ def bag_of_neighbors(graph):
     return bag
 
 
-def bag_of_weighted_closure(graph, maxlen=None):
-    """ Build bag of transitive closure for graph """
-    return bag_of_closure(graph, weight_len=True, maxlen=maxlen)
-
-
-def bag_of_closure(graph, maxlen=None, weight_len=False):
+def bag_of_transitive_closure(graph, maxlen=None):
     """ Build bag of transitive closure for graph """
 
     paths = nx.all_pairs_shortest_path(graph, cutoff=maxlen)
@@ -78,14 +72,13 @@ def bag_of_closure(graph, maxlen=None, weight_len=False):
         for j in paths[i]:
             if i == j:
                 continue
-            label = "%s:%s" % (graph.node[i]["label"], graph.node[j]["label"])
+            label = "%s:%s" % (
+                graph.node[i]["label"], graph.node[j]["label"]
+            )
 
             if label not in bag:
                 bag[label] = 0.0
-            if not weight_len:
-                bag[label] += 1.0
-            else:
-                bag[label] += 1.0 / (len(paths[i][j]) - 1)
+            bag[label] += 1.0
 
     return bag
 

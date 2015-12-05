@@ -23,6 +23,8 @@ parser.add_argument('-t', '--time', metavar='N', default=2,
                     help='number of seconds to benchmark')
 parser.add_argument('-b', '--bits', metavar='N', default=24, type=int,
                     help='set bits for feature hashing')
+parser.add_argument('-l', '--maxlen', metavar='N', default=3, type=int,
+                    help='set maximum length of paths')
 args = parser.parse_args()
 
 # Initialize pool for multi-threading
@@ -42,7 +44,10 @@ for mode, fname in siggie.modes.items():
         graph = random.choice(testset)
 
         start = time.time()
-        bag = getattr(siggie, fname)(graph)
+        func = getattr(siggie, fname)
+        if mode in [6, 7, 8]:
+            func = partial(func, maxlen=args.maxlen)
+        bag = func(graph)
         fvec = siggie.bag_to_fvec(bag, bits=args.bits)
         times.append(time.time() - start)
 

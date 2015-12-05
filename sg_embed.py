@@ -20,12 +20,14 @@ parser.add_argument('-o', '--output', metavar='F', default="output.libsvm",
                     help='set output file')
 parser.add_argument('-m', '--mode', metavar='N', default=0, type=int,
                     help='set bag mode for feature hashing')
-parser.add_argument('-l', '--label', metavar='R', default="^\d+",
+parser.add_argument('-r', '--regex', metavar='R', default="^\d+",
                     help='set regex for labels in filenames')
 parser.add_argument('-b', '--bits', metavar='N', default=24, type=int,
                     help='set bits for feature hashing')
 parser.add_argument('-f', '--fmap', metavar='F', default=None,
                     help='store feature mapping in file')
+parser.add_argument('-l', '--maxlen', metavar='N', default=3, type=int,
+                    help='set maximum length of paths')
 args = parser.parse_args()
 
 # Initialize pool for multi-threading
@@ -34,12 +36,15 @@ pool = Pool()
 # Loop over bundles on command line
 for i, bundle in enumerate(args.bundle):
     print "= Loading graphs from bundle %s" % bundle
-    graphs, labels = utils.load_dot_zip(bundle, args.label)
+    graphs, labels = utils.load_dot_zip(bundle, args.regex)
 
     for mode, fname in siggie.modes.items():
         if args.mode == mode:
             print "= Hashing graphs using %s" % fname.replace("_", " ")
-            bags = pool.map(getattr(siggie, fname), graphs)
+            func = getattr(siggie, fname)
+            if mode in [6, 7, 8]:
+                func = partial(func, maxlen=args.maxlen)
+            bags = pool.map(func, graphs)
             break
     del graphs
 

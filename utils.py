@@ -12,14 +12,14 @@ import networkx as nx
 import pygraphviz as pg
 
 
-def load_dot_zip(filename, label="^$"):
+def load_dot_zip(filename, regex="^$"):
     """ Load DOT graphs from zip archive """
 
     pool = Pool()
     archive = zf.ZipFile(filename)
 
     entries = [(archive, entry) for entry in archive.namelist()]
-    func = partial(load_dot_entry, regex=re.compile(label))
+    func = partial(load_dot_entry, regex=re.compile(regex))
     items = pool.map(func, entries)
     items = filter(lambda (g, l): g is not None, items)
     graphs, labels = zip(*items)

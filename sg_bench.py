@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument('bundle', metavar='bundle', nargs='+',
                     help='graph bundle (zip archive of DOT files)')
-parser.add_argument('-t', '--time', metavar='N', default=2,
+parser.add_argument('-t', '--time', metavar='N', default=2, type=float,
                     help='number of seconds to benchmark')
 parser.add_argument('-b', '--bits', metavar='N', default=24, type=int,
                     help='set bits for feature hashing')
@@ -37,7 +37,7 @@ for i, bundle in enumerate(args.bundle):
     graphs, _ = utils.load_dot_zip(bundle)
     testset.extend(graphs)
 
-print "= Benchmarking each mode for %d seconds" % args.time
+print "= Benchmarking each mode for %g seconds" % args.time
 for mode, fname in siggie.modes.items():
     times = []
     while np.sum(times) < args.time:

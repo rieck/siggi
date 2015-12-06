@@ -15,11 +15,28 @@ modes = {
     1: "bag_of_edges",
     2: "bag_of_neighborhoods",
     3: "bag_of_reachabilities",
-    4: "bag_of_shortest_paths"
+    4: "bag_of_shortest_paths",
     5: "bag_of_weakly_connected_components",
     6: "bag_of_strongly_connected_components",
     7: "bag_of_attracting_components",
 }
+
+
+def add_arguments(parser):
+    """ Add command-line arguments to partser """
+
+    parser.add_argument('-b', '--bits', metavar='N', default=24, type=int,
+                        help='set bits for feature hashing')
+    parser.add_argument('-f', '--fmap', metavar='F', default=None,
+                        help='store feature mapping in file')
+    parser.add_argument('-l', '--minlen', metavar='N', default=3, type=int,
+                        help='set minimum length of shortest paths')
+    parser.add_argument('-L', '--maxlen', metavar='N', default=3, type=int,
+                        help='set maximum length of shortest paths')
+    parser.add_argument('-s', '--size', metavar='N', default=1, type=int,
+                        help='set size of neighborhoods')
+    parser.add_argument('-d', '--depth', metavar='N', default=5, type=int,
+                        help='set depth of reachabilities')
 
 def mode_name(mode, args):
     """ Return the name and config of a bag mode """
@@ -30,7 +47,7 @@ def mode_name(mode, args):
     elif mode == 3:
         s += " (depth: %d)" % args.depth
     elif mode == 4:
-        s += " (maxlen: %d)" % args.maxlen
+        s += " (min: %d, max: %d)" % (args.minlen, args.maxlen)
     return s
 
 
@@ -110,6 +127,9 @@ def bag_of_shortest_paths(graph, args):
     for i in paths:
         for j in paths[i]:
             path = map(lambda x: graph.node[x]["label"], paths[i][j])
+            if len(path) < args.minlen:
+                continue
+
             label = '-'.join(path)
             if label not in bag:
                 bag[label] = 0.0

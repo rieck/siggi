@@ -23,15 +23,7 @@ parser.add_argument('-m', '--mode', metavar='N', default=-1, type=int,
                     help='set bag mode for feature hashing')
 parser.add_argument('-t', '--time', metavar='N', default=2, type=float,
                     help='number of seconds to benchmark')
-parser.add_argument('-b', '--bits', metavar='N', default=24, type=int,
-                    help='set bits for feature hashing')
-parser.add_argument('-l', '--maxlen', metavar='N', default=3, type=int,
-                    help='set maximum length of paths')
-parser.add_argument('-s', '--size', metavar='N', default=1, type=int,
-                    help='set size of neighborhoods')
-parser.add_argument('-d', '--depth', metavar='N', default=5, type=int,
-                    help='set depth of reachabilities')
-
+siggie.add_arguments(parser)
 args = parser.parse_args()
 
 # Initialize pool for multi-threading

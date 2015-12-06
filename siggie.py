@@ -2,8 +2,6 @@
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import sys
-from collections import defaultdict
-
 import networkx as nx
 
 import utils
@@ -16,9 +14,8 @@ modes = {
     2: "bag_of_neighborhoods",
     3: "bag_of_reachabilities",
     4: "bag_of_shortest_paths",
-    5: "bag_of_weakly_connected_components",
-    6: "bag_of_strongly_connected_components",
-    7: "bag_of_attracting_components",
+    5: "bag_of_connected_components",
+    6: "bag_of_attracting_components",
 }
 
 
@@ -84,7 +81,7 @@ def bag_of_neighborhoods(graph, args):
 
     bag = {}
     for i in paths:
-        reachable = paths[i].keys()
+        reachable = filter(lambda x: x != i, paths[i].keys())
         ns = map(lambda x: graph.node[x]["label"], reachable)
         label = "%s:%s" % (graph.node[i]["label"], '-'.join(sorted(ns)))
 
@@ -102,7 +99,7 @@ def bag_of_reachabilities(graph, args):
 
     bag = {}
     for i in paths:
-        reachable = paths[i].keys()
+        reachable = filter(lambda x: x != i, paths[i].keys())
         if len(reachable) == 0:
             continue
 
@@ -127,7 +124,7 @@ def bag_of_shortest_paths(graph, args):
     for i in paths:
         for j in paths[i]:
             path = map(lambda x: graph.node[x]["label"], paths[i][j])
-            if len(path) < args.minlen:
+            if len(path) - 1 < args.minlen:
                 continue
 
             label = '-'.join(path)
@@ -138,31 +135,19 @@ def bag_of_shortest_paths(graph, args):
     return bag
 
 
-def bag_of_strongly_connected_components(graph, args):
+def bag_of_connected_components(graph, args):
     """ Bag of strongly connected components """
     comp = nx.strongly_connected_components(graph)
-    return bag_of_components(graph, comp)
-
-
-def bag_of_weakly_connected_components(graph, args):
-    """ Bag of weakly connected components """
-    comp = nx.weakly_connected_components(graph)
-    return bag_of_components(graph, comp)
-
-
-def bag_of_biconnected_components(graph, args):
-    """ Bag of bi-connected components """
-    comp = nx.biconnected_components(graph)
-    return bag_of_components(graph, comp)
+    return __bag_of_components(graph, comp)
 
 
 def bag_of_attracting_components(graph, args):
     """ Bag of attracting components """
     comp = nx.attracting_components(graph)
-    return bag_of_components(graph, comp)
+    return __bag_of_components(graph, comp)
 
 
-def bag_of_components(graph, comp):
+def __bag_of_components(graph, comp):
     """ Build bag of components for graph """
 
     bag = {}

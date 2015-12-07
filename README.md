@@ -114,11 +114,11 @@ are provided as lists with nodes being sorted by label.
 
         [C]:  1
 
-## Limitations
+### Limitations
 
-Siggie does not support extracting arbitrary subgraphs, as well as
-solving the subgraph isomorphism problem. It is a simple tool for a
-simple task. Following is a list of supported modes.
+Siggie does not support extracting arbitrary subgraphs. This also implies
+that the tool cannot help in solving subgraph isomorphism problems. Please
+relax, it is a simple tool for a simple task.
 
 ## Running Siggie
 

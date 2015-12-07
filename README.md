@@ -16,7 +16,7 @@ componenents, cliques and closures.
 ## Supported Modes
 
 Siggie supports the following modes (types of subgraphs) for
-feature hashing, where a detailed description of each mode is given
+feature hashing. A detailed description of each mode is given
 in the next paragraphs.
 
         0: Bag of Nodes

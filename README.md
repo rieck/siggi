@@ -15,10 +15,22 @@ componenents, cliques and closures.
 
 ## Supported Modes
 
-For presenting the different modes (types of subgraphs) supported by
-Siggie, we first introduce a simple toy example: The following graph
-consists of 6 nodes and 6 edges. The nodes are labeled using the 3
-symbols: `A`, `B` and `C`.
+Siggie supports the following modes (types of subgraphs) for
+feature hashing, where a detailed description of each mode is given
+in the next paragraphs.
+
+        0: Bag of Nodes
+        1: Bag of Edges
+        2: Bag of Neighborhoods
+        3: Nag of Reachabilities
+        4: Bag of Shortest Paths
+        5: Bag of Connected Components
+        6: Bag of Attracting Components
+        7: Bag of Elementary Cycles
+
+For presenting the different modes, we first introduce a simple
+toy example: The following graph consists of 6 nodes and 6 edges.
+The nodes are labeled using the 3 symbols: `A`, `B` and `C`.
 
         A --> B <-- B --> C
               |     ^

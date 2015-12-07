@@ -23,7 +23,7 @@ dot_strings = [
     # Chain graph
     """ digraph {
         1 [label="A"]; 2 [label="B"]; 3 [label="A"];
-        1 -> 2 -> 3; 3 -> 2 -> 1
+        1 -> 2 -> 3; 3 -> 2 -> 1;
     } """,
 
     # Graph from README
@@ -38,7 +38,7 @@ dot_strings = [
         1 [label="A"]; 2 [label="B"]; 3 [label="C"];
         4 [label="A"]; 5 [label="B"]; 6 [label="C"];
         1 -> 2 -> 3 -> 1 ; 4 -> 5 -> 6 -> 4;
-        2 -> 4; 4 -> 2;
+        2 -> 4;
     } """
 ]
 
@@ -51,7 +51,6 @@ def get_graph(string):
 
 class TestCases(unittest.TestCase):
     def test_bag_of_nodes(self):
-        """ Test bag of nodes """
         bags = [
             {},  # Empty graph
             {"A": 2, "B": 1},  # Disconnected graph
@@ -66,13 +65,12 @@ class TestCases(unittest.TestCase):
             self.assertEqual(bag, bags[i])
 
     def test_bag_of_edges(self):
-        """ Test bag of edges """
         bags = [
             {},  # Empty graph
             {},  # Disconnected graph
             {"A-B": 2, "B-A": 2},  # Chain graph
             {"A-B": 2, "B-B": 1, "B-C": 2, "C-A": 1},  # Graph from README
-            {"A-B": 3, "B-C": 2, "C-A": 2, "B-A": 1},  # Attracting loops
+            {"A-B": 2, "B-C": 2, "C-A": 2, "B-A": 1},  # Attracting loops
         ]
 
         for i, string in enumerate(dot_strings):
@@ -80,6 +78,101 @@ class TestCases(unittest.TestCase):
             bag = siggie.bag_of_edges(graph)
             self.assertEqual(bag, bags[i])
 
+    def test_bag_of_neighborhoods(self):
+        bags = [
+            {},  # Empty graph
+            {"A:": 2, "B:": 1},  # Disconnected graph
+            {"A:A-B": 2, "B:A-A": 1},  # Chain graph
+            # Graph from README
+            {
+                "A:B-B-C": 1, "A:B-C": 1, "B:A-C": 1, "B:B-C-C": 1,
+                "C:": 1, "C:A-B": 1
+            },
+            # Attracting loops
+            {
+                "A:A-B-C": 1, "B:A-A-B-C": 1, "C:A-B": 2, "B:A-C": 1,
+                "A:B-C": 1,
+            },
+        ]
 
-if __name__ == '__main__':
+        for i, string in enumerate(dot_strings):
+            graph = get_graph(string)
+            bag = siggie.bag_of_neighborhoods(graph, size=2)
+            self.assertEqual(bag, bags[i])
+
+    def test_bag_of_reachabilities(self):
+        bags = [
+            {},  # Empty graph
+            {},  # Disconnected graph
+            {"A:B": 2, "A:A": 2, "B:A": 2},  # Chain graph
+            # Graph from README
+            {
+                "A:B": 3, "A:C": 2, "B:A": 1, "B:B": 1, "B:C": 3,
+                "C:A": 1, "C:B": 1
+            },
+            # Attracting loops
+            {
+                "A:B": 2, "A:A": 1, "A:C": 2, "B:A": 3, "B:B": 1,
+                "B:C": 2, "C:A": 2, "C:B": 2
+            },
+        ]
+
+        for i, string in enumerate(dot_strings):
+            graph = get_graph(string)
+            bag = siggie.bag_of_reachabilities(graph, depth=2)
+            self.assertEqual(bag, bags[i])
+
+    def test_bag_of_shortest_paths(self):
+        bags = [
+            {},  # Empty graph
+            {},  # Disconnected graph
+            {"A-B-A": 2},  # Chain graph
+            # Graph from README
+            {
+                "B-C-A-B": 1, "B-C-A": 1, "B-B-C-A": 1, "B-B-C": 1,
+                "A-B-C-A": 1, "C-A-B-B": 1, "C-A-B-C": 1, "C-A-B": 1,
+                "A-B-B": 1, "A-B-C": 2, "A-B-B-C": 1
+            },
+            # Attracting loops
+            {
+                "A-B-A-B": 1, "B-A-B": 1, "B-A-B-C": 1, "B-C-A": 2,
+                "C-A-B-A": 1, "C-A-B": 2, "A-B-C": 2, "A-B-A": 1
+            },
+        ]
+
+        for i, string in enumerate(dot_strings):
+            graph = get_graph(string)
+            bag = siggie.bag_of_shortest_paths(graph, minlen=2, maxlen=3)
+            self.assertEqual(bag, bags[i])
+
+    def test_bag_of_connected_components(self):
+        bags = [
+            {},  # Empty graph
+            {"A": 2, "B": 1},  # Disconnected graph
+            {"A-A-B": 1},  # Chain graph
+            {"A": 1, "A-B-B-C": 1, "C": 1},  # Graph from README
+            {"A-B-C": 2},  # Attracting loops
+        ]
+
+        for i, string in enumerate(dot_strings):
+            graph = get_graph(string)
+            bag = siggie.bag_of_connected_components(graph)
+            self.assertEqual(bag, bags[i])
+
+    def test_bag_of_attracting_components(self):
+        bags = [
+            {},  # Empty graph
+            {"A": 2, "B": 1},  # Disconnected graph
+            {"A-A-B": 1},  # Chain graph
+            {"C": 1},  # Graph from README
+            {"A-B-C": 1},  # Attracting loops
+        ]
+
+        for i, string in enumerate(dot_strings):
+            graph = get_graph(string)
+            bag = siggie.bag_of_attracting_components(graph)
+            self.assertEqual(bag, bags[i])
+
+
+if __name__ == "__main__":
     unittest.main()

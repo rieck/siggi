@@ -142,6 +142,9 @@ def bag_of_connected_components(graph, **kwargs):
 
 def bag_of_attracting_components(graph, **kwargs):
     """ Bag of attracting components """
+    # Hack to deal with broken nx implementation
+    if len(graph.node) == 0:
+        return {}
     comp = nx.attracting_components(graph)
     return __bag_of_components(graph, comp)
 

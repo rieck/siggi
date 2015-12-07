@@ -1,8 +1,13 @@
 # Interesting Semirings
 
-Simplified Dijkstra semiring: `set`, `plus`, `zero`, `prod`, `one`
+We define a simplified semiring by a `set`, `plus`, `zero`, `prod`, `one`,
+where `zero` is the neutral elment of `plus`, `one` the neutral elment of
+`prod` and `set` the set we are operating with.
 
-## Shortest paths
+## Shortest Paths
+
+The classic all-pairs shortest-path problem can be solved using
+this semiring.
 
 - `set`: positive integers
 - `plus`: addition
@@ -10,7 +15,11 @@ Simplified Dijkstra semiring: `set`, `plus`, `zero`, `prod`, `one`
 - `prod`: minimum operation
 - `one`: infinity
 
-## Transitive closure
+## Transitive Closure
+
+The transitive closure of a graph, that is, the all-pairs reachability,
+can be solved using the following semiring. However, due to the binary
+set there exist more efficient implementations.
 
 - `set`: 0,1
 - `plus`: and operation
@@ -18,7 +27,9 @@ Simplified Dijkstra semiring: `set`, `plus`, `zero`, `prod`, `one`
 - `prod`: or operation
 - `one`: 0
 
-## Maximum Capacity Path
+## Bottleneck Paths
+
+The all-pairs bottlneck-path problem can be solved using this semiring.
 
 - `set`: positive integers
 - `plus`: minimum operation

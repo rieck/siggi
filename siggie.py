@@ -38,6 +38,8 @@ def bag_name(m, **kwargs):
     """ Return the name and config of a bag mode """
 
     s = modes[m].replace("_", " ")
+    s = s.replace("bag of", "bags of")
+
     if m == 2:
         s += " (size: %d)" % kwargs["size"]
     elif m == 3:

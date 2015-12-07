@@ -35,13 +35,13 @@ for i, bundle in enumerate(args.bundle):
     print "= Loading graphs from bundle %s" % bundle
     graphs, labels = utils.load_dot_zip(bundle, args.regex)
 
-    print "= Hashing graphs using %s" % siggie.bag_name(args.mode, **kwargs)
+    print "= Extracting %s from graphs" % siggie.bag_name(args.mode, **kwargs)
     func = partial(getattr(siggie, siggie.modes[args.mode]), **kwargs)
     bags = pool.map(func, graphs)
     del graphs
 
     # Convert bags to feature vectors
-    print "= Converting bags to feature vectors"
+    print "= Hashing bags to feature vectors"
     func = partial(siggie.bag_to_fvec, **kwargs)
     items = pool.map(func, bags)
     fvecs, fmaps = zip(*items)

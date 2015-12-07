@@ -25,6 +25,8 @@ parser.add_argument('-t', '--time', metavar='N', default=2, type=float,
                     help='number of seconds to benchmark')
 siggie.add_arguments(parser)
 args = parser.parse_args()
+kwargs = vars(args)
+
 
 # Initialize pool for multi-threading
 pool = Pool()
@@ -48,13 +50,13 @@ for mode, fname in modes:
         graph = random.choice(testset)
 
         start = time.time()
-        func = partial(getattr(siggie, fname), args=args)
+        func = partial(getattr(siggie, fname), **kwargs)
         bag = func(graph)
-        fvec = siggie.bag_to_fvec(bag, bits=args.bits)
+        fvec = siggie.bag_to_fvec(bag, **kwargs)
         times.append(time.time() - start)
 
     speed = float(len(times)) / np.sum(times)
-    print "  representation: %s" % siggie.mode_name(mode, args)
+    print "  representation: %s" % siggie.mode_name(mode, **kwargs)
     print "  mode: %d | %5.0f graphs/s | %5.2f ms/graph | +/- %5.2f" % (
         mode, speed, 1000 * np.mean(times), 1000 * np.std(times)
     )

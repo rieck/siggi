@@ -35,20 +35,20 @@ def add_arguments(parser):
     parser.add_argument('-d', '--depth', metavar='N', default=5, type=int,
                         help='set depth of reachabilities')
 
-def mode_name(mode, args):
+def bag_name(m, **kwargs):
     """ Return the name and config of a bag mode """
 
-    s = modes[mode].replace("_", " ")
-    if mode == 2:
-        s += " (size: %d)" % args.size
-    elif mode == 3:
-        s += " (depth: %d)" % args.depth
-    elif mode == 4:
-        s += " (min: %d, max: %d)" % (args.minlen, args.maxlen)
+    s = modes[m].replace("_", " ")
+    if m == 2:
+        s += " (size: %d)" % kwargs["size"]
+    elif m == 3:
+        s += " (depth: %d)" % kwargs["depth"]
+    elif m == 4:
+        s += " (min: %d, max: %d)" % (kwargs["minlen"], kwargs["maxlen"])
     return s
 
 
-def bag_of_nodes(graph, args):
+def bag_of_nodes(graph, **kwargs):
     """ Build bag of nodes from graph """
 
     bag = {}
@@ -61,7 +61,7 @@ def bag_of_nodes(graph, args):
     return bag
 
 
-def bag_of_edges(graph, args):
+def bag_of_edges(graph, **kwargs):
     """ Build bag of edges from graph """
 
     bag = {}
@@ -74,10 +74,10 @@ def bag_of_edges(graph, args):
     return bag
 
 
-def bag_of_neighborhoods(graph, args):
+def bag_of_neighborhoods(graph, **kwargs):
     """ Build bag of neighborhoods for graph """
 
-    paths = nx.all_pairs_shortest_path(graph, cutoff=args.size)
+    paths = nx.all_pairs_shortest_path(graph, cutoff=kwargs["size"])
 
     bag = {}
     for i in paths:
@@ -92,10 +92,10 @@ def bag_of_neighborhoods(graph, args):
     return bag
 
 
-def bag_of_reachabilities(graph, args):
+def bag_of_reachabilities(graph, **kwargs):
     """ Build bag of reachabilities for graph """
 
-    paths = nx.all_pairs_shortest_path(graph, cutoff=args.depth)
+    paths = nx.all_pairs_shortest_path(graph, cutoff=kwargs["depth"])
 
     bag = {}
     for i in paths:
@@ -115,16 +115,16 @@ def bag_of_reachabilities(graph, args):
     return bag
 
 
-def bag_of_shortest_paths(graph, args):
+def bag_of_shortest_paths(graph, **kwargs):
     """ Build bag of shortest path for graph """
 
-    paths = nx.all_pairs_shortest_path(graph, cutoff=args.maxlen)
+    paths = nx.all_pairs_shortest_path(graph, cutoff=kwargs["maxlen"])
 
     bag = {}
     for i in paths:
         for j in paths[i]:
             path = map(lambda x: graph.node[x]["label"], paths[i][j])
-            if len(path) - 1 < args.minlen:
+            if len(path) - 1 < kwargs["minlen"]:
                 continue
 
             label = '-'.join(path)
@@ -135,13 +135,13 @@ def bag_of_shortest_paths(graph, args):
     return bag
 
 
-def bag_of_connected_components(graph, args):
+def bag_of_connected_components(graph, **kwargs):
     """ Bag of strongly connected components """
     comp = nx.strongly_connected_components(graph)
     return __bag_of_components(graph, comp)
 
 
-def bag_of_attracting_components(graph, args):
+def bag_of_attracting_components(graph, **kwargs):
     """ Bag of attracting components """
     comp = nx.attracting_components(graph)
     return __bag_of_components(graph, comp)
@@ -161,7 +161,7 @@ def __bag_of_components(graph, comp):
     return bag
 
 
-def bag_to_fvec(bag, bits=24, fmap=None):
+def bag_to_fvec(bag, **kwargs):
     """ Map bag to sparse feature vector """
 
     fvec = {}
@@ -169,7 +169,7 @@ def bag_to_fvec(bag, bits=24, fmap=None):
 
     for key in bag:
         hash = utils.murmur3(key)
-        dim = hash & (1 << bits) - 1
+        dim = hash & (1 << kwargs["bits"]) - 1
         sign = 2 * (hash >> 31) - 1
 
         if dim not in fvec:
@@ -177,10 +177,10 @@ def bag_to_fvec(bag, bits=24, fmap=None):
         fvec[dim] += sign * bag[key]
 
         # Store dim-key mapping
-        if fmap:
+        if "fmap" in kwargs:
             if dim not in hashes:
                 hashes[dim] = set()
             if key not in hashes[dim]:
                 hashes[dim].add(key)
 
-    return fvec, hashes if fmap else None
+    return fvec, hashes if "fmap" in kwargs else None

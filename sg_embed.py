@@ -25,6 +25,7 @@ parser.add_argument('-r', '--regex', metavar='R', default="^\d+",
 siggie.add_arguments(parser)
 
 args = parser.parse_args()
+kwargs = vars(args)
 
 # Initialize pool for multi-threading
 pool = Pool()
@@ -34,17 +35,14 @@ for i, bundle in enumerate(args.bundle):
     print "= Loading graphs from bundle %s" % bundle
     graphs, labels = utils.load_dot_zip(bundle, args.regex)
 
-    for mode, fname in siggie.modes.items():
-        if args.mode == mode:
-            print "= Hashing graphs using %s" % siggie.mode_name(mode, args)
-            func = partial(getattr(siggie, fname), args=args)
-            bags = pool.map(func, graphs)
-            break
+    print "= Hashing graphs using %s" % siggie.bag_name(args.mode, **kwargs)
+    func = partial(getattr(siggie, siggie.modes[args.mode]), **kwargs)
+    bags = pool.map(func, graphs)
     del graphs
 
     # Convert bags to feature vectors
     print "= Converting bags to feature vectors"
-    func = partial(siggie.bag_to_fvec, bits=args.bits, fmap=args.fmap)
+    func = partial(siggie.bag_to_fvec, **kwargs)
     items = pool.map(func, bags)
     fvecs, fmaps = zip(*items)
     del bags

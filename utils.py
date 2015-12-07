@@ -1,9 +1,9 @@
 # Siggie - Feature Hashing for Labeled Graph
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
+import json
 import os
 import re
-import json
 import zipfile as zf
 from functools import partial
 from multiprocessing import Pool
@@ -89,7 +89,7 @@ def save_fmap(filename, fmaps):
                 final[k].union(fm[k])
 
     # Convert to lists
-    final.update({k : list(v) for k, v in final.iteritems()})
+    final.update({k: list(v) for k, v in final.iteritems()})
     json.dump(final, open(filename, "w"))
 
 

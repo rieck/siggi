@@ -3,11 +3,12 @@
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import argparse
-import time
 import random
-import numpy as np
+import time
 from functools import partial
 from multiprocessing import Pool
+
+import numpy as np
 
 import siggie
 import utils
@@ -26,7 +27,6 @@ parser.add_argument('-t', '--time', metavar='N', default=2, type=float,
 siggie.add_arguments(parser)
 args = parser.parse_args()
 kwargs = vars(args)
-
 
 # Initialize pool for multi-threading
 pool = Pool()

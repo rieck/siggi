@@ -1,11 +1,9 @@
 # Siggie - Feature Hashing for Labeled Graphs
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
-import sys
 import networkx as nx
 
 import utils
-
 
 # Supported modes for bags
 modes = {
@@ -34,6 +32,7 @@ def add_arguments(parser):
                         help='set size of neighborhoods')
     parser.add_argument('-d', '--depth', metavar='N', default=5, type=int,
                         help='set depth of reachabilities')
+
 
 def bag_name(m, **kwargs):
     """ Return the name and config of a bag mode """

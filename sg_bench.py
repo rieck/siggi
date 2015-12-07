@@ -28,6 +28,8 @@ siggie.add_arguments(parser)
 args = parser.parse_args()
 kwargs = vars(args)
 
+
+
 # Initialize pool for multi-threading
 pool = Pool()
 
@@ -57,5 +59,5 @@ for mode, fname in modes:
 
     speed = float(len(times)) / np.sum(times)
     print "  Mode: %d | %5.0f graphs/s | %5.2f ms/graph | +/- %5.2f" % (
-        mode, speed, 1000 * np.mean(times), 1000 * np.std(times)
+        mode, speed, 1000 * utils.mean(times), 1000 * utils.std(times)
     )

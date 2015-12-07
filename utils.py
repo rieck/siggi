@@ -7,7 +7,6 @@ import re
 import zipfile as zf
 from functools import partial
 from multiprocessing import Pool
-
 import networkx as nx
 import pygraphviz as pg
 
@@ -142,3 +141,16 @@ def murmur3(data, seed=0):
     h1 ^= ((h1 & 0xffffffff) >> 16)
 
     return h1 & 0xffffffff
+
+
+def mean(data):
+    """ Simple mean function. Adapted from Python 3.4 """
+    return sum(data) / float(len(data))
+
+
+def std(data):
+    """ Simple std function. Adapted from Python 3.4 """
+    m = mean(data)
+    ss = sum((x - m) ** 2 for x in data)
+    s = ss / float(len(data))
+    return s ** 0.5

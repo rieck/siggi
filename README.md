@@ -114,6 +114,14 @@ are provided as lists with nodes being sorted by label.
 
         [C]:  1
 
+### Mode 7: Bag of Elementary Cycles
+
+The graph is represented by a bag of elementary cycles, that is,
+cycles that do not contain a node twice. The extracted cycles are
+rotated, such that the smallest label is in front.
+
+       A --> B --> B --> C:  1
+
 ### Limitations
 
 Siggie does not support extracting arbitrary subgraphs. This also implies
@@ -136,13 +144,14 @@ the different modes supported by Siggie. As an example dataset we use
       $ python sg_bench.py example.zip
       = Loading graphs from bundle example.zip
       = Benchmarking modes for 1 seconds
-      Mode: 0 |  1286 graphs/s |  0.78 ms/graph | +/-  0.77
-      Mode: 1 |   509 graphs/s |  1.96 ms/graph | +/-  2.57
-      Mode: 2 |   252 graphs/s |  3.97 ms/graph | +/-  5.50
-      Mode: 3 |   187 graphs/s |  5.34 ms/graph | +/-  7.62
-      Mode: 4 |   278 graphs/s |  3.60 ms/graph | +/-  5.76
-      Mode: 5 |   605 graphs/s |  1.65 ms/graph | +/-  1.74
-      Mode: 6 |   341 graphs/s |  2.93 ms/graph | +/-  3.94
+      Mode: 0 |  1720 graphs/s |  0.58 ms/graph | +/-  0.46
+      Mode: 1 |   544 graphs/s |  1.84 ms/graph | +/-  2.37
+      Mode: 2 |   272 graphs/s |  3.68 ms/graph | +/-  4.96
+      Mode: 3 |   202 graphs/s |  4.95 ms/graph | +/-  7.33
+      Mode: 4 |   282 graphs/s |  3.54 ms/graph | +/-  5.66
+      Mode: 5 |   663 graphs/s |  1.51 ms/graph | +/-  1.58
+      Mode: 6 |   317 graphs/s |  3.15 ms/graph | +/-  3.96
+      Mode: 7 |   151 graphs/s |  6.63 ms/graph | +/-  8.57
 
 Looks good. We are now ready to map the graphs in `example.zip` to
 vectors. To this end, we simply run the following command and pick
@@ -150,8 +159,8 @@ mode `4` which corresponds bags of shortest paths:
 
       $ python sg_map.py -m 4 -o vectors.libsvm example.zip
       = Loading graphs from bundle example.zip
-      = Hashing graphs using bag of shortest paths (min: 3, max: 3)
-      = Converting bags to feature vectors
+      = Extracting bags of shortest paths (min: 3, max: 3) from graphs
+      = Hashing bags to feature vectors
       = Saving feature vectors to vectors.libsvm
 
 Have fun, Konrad

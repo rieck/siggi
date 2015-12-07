@@ -14,6 +14,7 @@ modes = {
     4: "bag_of_shortest_paths",
     5: "bag_of_connected_components",
     6: "bag_of_attracting_components",
+    7: "bag_of_elementary_cycles",
 }
 
 
@@ -158,6 +159,26 @@ def __bag_of_components(graph, comp):
     for nodes in comp:
         ns = map(lambda x: graph.node[x]["label"], nodes)
         label = '-'.join(sorted(ns))
+        if label not in bag:
+            bag[label] = 0
+        bag[label] += 1
+
+    return bag
+
+
+def bag_of_elementary_cycles(graph, **kwargs):
+    """ Bag of elementary cycles """
+
+    bag = {}
+    for cycle in nx.simple_cycles(graph):
+        ns = map(lambda x: graph.node[x]["label"], cycle)
+
+        # Determine smallest label and rotate cycle
+        i = min(enumerate(ns), key=lambda x: x[1])[0]
+        ns.extend(ns[:i])
+        ns[:i] = []
+
+        label = '-'.join(ns)
         if label not in bag:
             bag[label] = 0
         bag[label] += 1

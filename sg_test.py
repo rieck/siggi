@@ -173,6 +173,20 @@ class TestCases(unittest.TestCase):
             bag = siggie.bag_of_attracting_components(graph)
             self.assertEqual(bag, bags[i])
 
+    def test_of_elementary_cycles(self):
+        bags = [
+            {},  # Empty graph
+            {},  # Disconnected graph
+            {"A-B": 2},  # Chain graph
+            {"A-B-B-C": 1},  # Graph from README
+            {"A-B-C": 2},  # Attracting loops
+        ]
+
+        for i, string in enumerate(dot_strings):
+            graph = get_graph(string)
+            bag = siggie.bag_of_elementary_cycles(graph)
+            self.assertEqual(bag, bags[i])
+
 
 if __name__ == "__main__":
     unittest.main()

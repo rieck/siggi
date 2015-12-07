@@ -13,12 +13,6 @@ dimension of the vector space.  Siggie supports subgraphs of different
 complexity, which range from the set of nodes and edges to connected
 componenents, cliques and closures.
 
-## Limitations
-
-Siggie does not support extracting arbitrary subgraphs, as well as
-solving the subgraph isomorphism problem. It is a simple tool for a
-simple task. Following is a list of supported modes.
-
 ## Supported Modes
 
 For presenting the different modes (types of subgraphs) supported by
@@ -119,3 +113,45 @@ component would never leave it, thus being attracted.  The components
 are provided as lists with nodes being sorted by label.
 
         [C]:  1
+
+## Limitations
+
+Siggie does not support extracting arbitrary subgraphs, as well as
+solving the subgraph isomorphism problem. It is a simple tool for a
+simple task. Following is a list of supported modes.
+
+## Running Siggie
+
+First of all, let us check that everything is working correctly.
+
+      $ python sg_check.py
+      .......
+      Ran 7 tests in 0.027s
+      OK
+
+Analysing graphs can be computationally expensive. We thus benchmark
+the different modes supported by Siggie. As an example dataset we use
+`example.zip`, which contains 8 simple graphs in DOT format.
+
+      $ python sg_bench.py example.zip
+      = Loading graphs from bundle example.zip
+      = Benchmarking modes for 1 seconds
+      Mode: 0 |  1286 graphs/s |  0.78 ms/graph | +/-  0.77
+      Mode: 1 |   509 graphs/s |  1.96 ms/graph | +/-  2.57
+      Mode: 2 |   252 graphs/s |  3.97 ms/graph | +/-  5.50
+      Mode: 3 |   187 graphs/s |  5.34 ms/graph | +/-  7.62
+      Mode: 4 |   278 graphs/s |  3.60 ms/graph | +/-  5.76
+      Mode: 5 |   605 graphs/s |  1.65 ms/graph | +/-  1.74
+      Mode: 6 |   341 graphs/s |  2.93 ms/graph | +/-  3.94
+
+Looks good. We are now ready to map the graphs in `example.zip` to
+vectors. To this end, we simply run the following command and pick
+mode `4` which corresponds bags of shortest paths:
+
+      $ python sg_map.py -m 4 -o vectors.libsvm example.zip
+      = Loading graphs from bundle example.zip
+      = Hashing graphs using bag of shortest paths (min: 3, max: 3)
+      = Converting bags to feature vectors
+      = Saving feature vectors to vectors.libsvm
+
+Have fun, Konrad

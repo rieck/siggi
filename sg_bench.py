@@ -22,7 +22,7 @@ parser.add_argument('bundle', metavar='bundle', nargs='+',
                     help='graph bundle (zip archive of DOT files)')
 parser.add_argument('-m', '--mode', metavar='N', default=-1, type=int,
                     help='set bag mode for feature hashing')
-parser.add_argument('-t', '--time', metavar='N', default=2, type=float,
+parser.add_argument('-t', '--time', metavar='N', default=1, type=float,
                     help='number of seconds to benchmark')
 siggie.add_arguments(parser)
 args = parser.parse_args()
@@ -56,7 +56,6 @@ for mode, fname in modes:
         times.append(time.time() - start)
 
     speed = float(len(times)) / np.sum(times)
-    print "  representation: %s" % siggie.mode_name(mode, **kwargs)
-    print "  mode: %d | %5.0f graphs/s | %5.2f ms/graph | +/- %5.2f" % (
+    print "  Mode: %d | %5.0f graphs/s | %5.2f ms/graph | +/- %5.2f" % (
         mode, speed, 1000 * np.mean(times), 1000 * np.std(times)
     )

@@ -175,4 +175,22 @@ mode `4` which corresponds bags of shortest paths:
       = Hashing bags to feature vectors
       = Saving feature vectors to vectors.libsvm
 
-Have fun, Konrad
+
+## Input Data
+
+Siggie operates on so-called _bundles_ of graphs.  A bundle is a Zip archive
+containing graphs as files in a format supported by Siggie.  You can provide
+multiple bunldes to Siggie.  This comes handy if you have different classes
+or types of graphs to analyze.
+
+_File suffix:_ Every file entry in the archive with a `dot` suffix is
+considered a graph in DOT format.  All other files are ignored.
+
+_File label:_ Siggie can optionally extract a file label from the name of a
+file entry using a regular expression.  By default, this regular expression
+matches numbers at the beginning of file names.  For example, the file entry
+`042_graph.dot` has the label `42`.  Note that leading zeros are dropped.
+
+_Node labels:_ Siggie operates on labeled graphs.  Hence, the nodes of each
+graph should be labeled using an attribute `label`. Depending on the 
+particular format, this attribute needs to be added to each node.

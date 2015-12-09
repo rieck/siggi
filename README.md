@@ -158,8 +158,8 @@ _Node labels:_ Siggie operates on labeled graphs.  The nodes of each
 graph have to be labeled using an attribute `label`.  Although each
 mode constructs a different representations of a graph, in all modes a
 node matches another node if it shares the same label, for example, a
-neighborhood matches another neighborhood if all nodes have the same
-labels and so on.
+neighborhood matches another neighborhood if the respective nodes have
+the same labels and so on.
 
 _Class labels:_ Siggie can extract a class label for each graph from
 the corresponding filename using a regular expression.  By default,

@@ -3,7 +3,6 @@
 
 Feature Hashing for Labeled Graphs.
 
-
 ## Overview
 
 Siggie is a simple tool for mapping a set of labeled graphs to
@@ -15,11 +14,11 @@ complexity, which range from the set of nodes and edges to connected
 components, cliques and closures.
 
 
-## Supported Modes
+## Bag of Subgraphs
 
-Siggie supports the following modes (types of subgraphs) for
-feature hashing. A detailed description of each mode is given
-in the next paragraphs.
+Siggie supports the following modes (bags of subgraphs) for feature
+hashing. A detailed description of each mode is given in the next
+paragraphs.
 
         0: Bag of Nodes
         1: Bag of Edges
@@ -143,21 +142,24 @@ that the tool cannot help in solving subgraph isomorphism problems. Please
 relax, it is a simple tool for a simple task.
 
 
-## Input Data
+## Input Format
 
 Siggie operates on so-called _bundles_ of graphs: A bundle is a Zip
 archive containing graphs as files in a supported format.  You can
 provide multiple bundles to Siggie on the command line.  This comes
-handy if you have different classes of graphs and want to pack them in
-corresponding archives.
+handy if you have different classes of graphs and want to organize
+them in corresponding archives.
 
 _File suffix:_ Every file entry in a bundle with a `dot` suffix is
 considered a graph in DOT format and loaded accordingly.  All other
 files are ignored.
 
-_Node labels:_ Siggie operates on labeled graphs.  Hence, the nodes of
-each graph has to be labeled using an attribute `label`.  Depending on
-the particular format, this attribute needs to be added to each node.
+_Node labels:_ Siggie operates on labeled graphs.  The nodes of each
+graph have to be labeled using an attribute `label`.  Although each
+mode constructs a different representations of a graph, in all modes a
+node matches another node if it shares the same label, for example, a
+neighborhood matches another neighborhood if all nodes have the same
+labels and so on.
 
 _Class labels:_ Siggie can extract a class label for each graph from
 the corresponding filename using a regular expression.  By default,

@@ -43,14 +43,14 @@ def load_dot_entry((archive, entry), regex="^\d+"):
     return nx.from_agraph(dot), label
 
 
-def save_dot_zip(graphs, filename):
+def save_dot_zip(graphs, labels, filename):
     """ Save DOT graphs to zip archive """
 
     archive = zf.ZipFile(filename, "w", zf.ZIP_DEFLATED)
 
-    for i, g in enumerate(graphs):
+    for i, (g, l) in enumerate(zip(graphs, labels)):
         dot = nx.to_agraph(g)
-        archive.writestr("%.7d.dot" % i, dot.to_string())
+        archive.writestr("%d_%.7d.dot" % (l, i), dot.to_string())
 
     archive.close()
 

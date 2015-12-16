@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument('bundle', metavar='bundle', nargs='+',
-                    help='graph bundle (zip archive of DOT files)')
+                    help='graph bundle (zip archive of dot/graphml files)')
 parser.add_argument('-m', '--mode', metavar='N', default=-1, type=int,
                     help='set bag mode for feature hashing')
 parser.add_argument('-t', '--time', metavar='N', default=1, type=float,
@@ -29,7 +29,6 @@ args = parser.parse_args()
 kwargs = vars(args)
 
 
-
 # Initialize pool for multi-threading
 pool = Pool()
 
@@ -37,7 +36,8 @@ pool = Pool()
 testset = []
 for i, bundle in enumerate(args.bundle):
     print "= Loading graphs from bundle %s" % bundle
-    graphs, _ = utils.load_dot_zip(bundle)
+    graphs, _ = utils.load_graph_zip(bundle)
+    pool.map(siggie.check_graph, graphs)
     testset.extend(graphs)
 
 if args.mode == -1:
@@ -58,6 +58,6 @@ for mode, fname in modes:
         times.append(time.time() - start)
 
     speed = float(len(times)) / np.sum(times)
-    print "  Mode: %d | %5.0f graphs/s | %5.2f ms/graph | +/- %5.2f" % (
+    print "  Mode: %d | %5.0f graphs/s | %7.2f ms/graph | +/- %5.2f" % (
         mode, speed, 1000 * utils.mean(times), 1000 * utils.std(times)
     )

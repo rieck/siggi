@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument('bundle', metavar='bundle', nargs='+',
-                    help='graph bundle (zip archive of DOT files)')
+                    help='graph bundle (zip archive of dot/graphml files)')
 parser.add_argument('-o', '--output', metavar='F', default="output.libsvm",
                     help='set output file')
 parser.add_argument('-m', '--mode', metavar='N', default=0, type=int,
@@ -33,7 +33,8 @@ pool = Pool()
 # Loop over bundles on command line
 for i, bundle in enumerate(args.bundle):
     print "= Loading graphs from bundle %s" % bundle
-    graphs, labels = utils.load_dot_zip(bundle, args.regex)
+    graphs, labels = utils.load_graph_zip(bundle, args.regex)
+    pool.map(siggie.check_graph, graphs)
 
     print "= Extracting %s from graphs" % siggie.bag_name(args.mode, **kwargs)
     func = partial(getattr(siggie, siggie.modes[args.mode]), **kwargs)

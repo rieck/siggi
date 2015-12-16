@@ -11,14 +11,14 @@ import networkx as nx
 import pygraphviz as pg
 
 
-def load_dot_zip(filename, regex="^$"):
-    """ Load DOT graphs from zip archive """
+def load_graph_zip(filename, regex="^$"):
+    """ Load graphs from zip archive """
 
     pool = Pool()
     archive = zf.ZipFile(filename)
 
     entries = [(archive, entry) for entry in archive.namelist()]
-    func = partial(load_dot_entry, regex=re.compile(regex))
+    func = partial(load_graph_entry, regex=re.compile(regex))
     items = pool.map(func, entries)
     items = filter(lambda (g, l): g is not None, items)
     graphs, labels = zip(*items)
@@ -30,29 +30,21 @@ def load_dot_zip(filename, regex="^$"):
     return graphs, labels
 
 
-def load_dot_entry((archive, entry), regex="^\d+"):
-    """ Load one DOT graph from zip archive """
+def load_graph_entry((archive, entry), regex="^\d+"):
+    """ Load one graph from zip archive """
 
-    if entry.endswith("/") or not entry.endswith(".dot"):
-        return None, 0
-
-    dot = pg.AGraph(archive.open(entry).read())
+    # Determine label
     match = regex.match(os.path.basename(entry))
     label = int(match.group(0)) if match else 0
 
-    return nx.from_agraph(dot), label
-
-
-def save_dot_zip(graphs, labels, filename):
-    """ Save DOT graphs to zip archive """
-
-    archive = zf.ZipFile(filename, "w", zf.ZIP_DEFLATED)
-
-    for i, (g, l) in enumerate(zip(graphs, labels)):
-        dot = nx.to_agraph(g)
-        archive.writestr("%d_%.7d.dot" % (l, i), dot.to_string())
-
-    archive.close()
+    if entry.endswith(".dot"):
+        graph = pg.AGraph(archive.open(entry).read())
+        return nx.from_agraph(graph), label
+    elif entry.endswith(".graphml"):
+        graph = nx.read_graphml(archive.open(entry))
+        return graph, label
+    else:
+        return None, 0
 
 
 def save_libsvm(filename, fvecs, labels, append=False):

@@ -209,3 +209,13 @@ def bag_to_fvec(bag, **kwargs):
                 hashes[dim].add(key)
 
     return fvec, hashes if "fmap" in kwargs else None
+
+
+def check_graph(graph, **kwargs):
+    """ Check if a graph is suitable for analysis """
+
+    for i in graph.nodes():
+        if "label" not in graph.node[i]:
+            raise Exception('Node %s is not labeled' % i)
+        if len(graph.node[i]["label"]) == 0:
+            raise Exception('Label of node %s is empty' % i)

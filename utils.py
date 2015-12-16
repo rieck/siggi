@@ -19,7 +19,7 @@ def load_graph_zip(filename, regex="^\d+"):
 
     entries = [(archive, entry) for entry in archive.namelist()]
     func = partial(load_graph_entry, regex=re.compile(regex))
-    items = map(func, entries)
+    items = pool.map(func, entries)
     items = filter(lambda (g, l): g is not None, items)
     graphs, labels = zip(*items)
 

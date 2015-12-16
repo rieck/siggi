@@ -142,7 +142,7 @@ determined by first removing all nodes with an outdegree greater
 than 1 and then determining the weakly connected components from the
 remaining nodes.
 
-      A --> C --> B --> A: 1
+      A --> B --> C --> A: 1
       C: 1
 
 ### Limitations

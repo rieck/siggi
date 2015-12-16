@@ -187,6 +187,20 @@ class TestCases(unittest.TestCase):
             bag = siggie.bag_of_elementary_cycles(graph)
             self.assertEqual(bag, bags[i])
 
+    def test_of_branchless_paths(self):
+        bags = [
+            {},  # Empty graph
+            {"A": 2, "B": 1},  # Disconnected graph
+            {"A": 2},  # Chain graph
+            {"A-B-C-A": 1, "C": 1},
+            {"C-A-B": 1, "C-A": 1},
+        ]
+
+        for i, string in enumerate(dot_strings):
+            graph = get_graph(string)
+            bag = siggie.bag_of_branchless_paths(graph)
+            self.assertEqual(bag, bags[i])
+
 
 if __name__ == "__main__":
     unittest.main()

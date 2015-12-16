@@ -11,7 +11,7 @@ import networkx as nx
 import pygraphviz as pg
 
 
-def load_graph_zip(filename, regex="^$"):
+def load_graph_zip(filename, regex="^\d+"):
     """ Load graphs from zip archive """
 
     pool = Pool()
@@ -19,7 +19,7 @@ def load_graph_zip(filename, regex="^$"):
 
     entries = [(archive, entry) for entry in archive.namelist()]
     func = partial(load_graph_entry, regex=re.compile(regex))
-    items = pool.map(func, entries)
+    items = map(func, entries)
     items = filter(lambda (g, l): g is not None, items)
     graphs, labels = zip(*items)
 
@@ -30,12 +30,15 @@ def load_graph_zip(filename, regex="^$"):
     return graphs, labels
 
 
-def load_graph_entry((archive, entry), regex="^\d+"):
+def load_graph_entry((archive, entry), regex):
     """ Load one graph from zip archive """
 
     # Determine label
     match = regex.match(os.path.basename(entry))
-    label = int(match.group(0)) if match else 0
+    if  match and len(match.group(0)) > 0:
+        label = int(match.group(0))
+    else:
+        label = 0
 
     if entry.endswith(".dot"):
         graph = pg.AGraph(archive.open(entry).read())

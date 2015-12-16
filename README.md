@@ -135,6 +135,16 @@ rotated, such that the smallest label is in front.
 
        A --> B --> B --> C:  1
 
+### Mode 8: Bag of Branchless Paths
+
+The graph is represented by a bag of branchless paths. The paths are
+determined by first removing all nodes with an outdegree greater
+than 1 and then determining the weakly connected components from the
+remaining nodes.
+
+      A --> C --> B --> A: 1
+      C: 1
+
 ### Limitations
 
 Siggie does not support extracting arbitrary subgraphs. This also implies

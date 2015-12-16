@@ -48,7 +48,7 @@ else:
 print "= Benchmarking modes for %g seconds" % args.time
 for mode, fname in modes:
 
-    # Check for slow modes
+    # Skip slow modes
     if mode == 7 and args.mode == -1:
         continue
 

@@ -15,6 +15,7 @@ modes = {
     5: "bag_of_connected_components",
     6: "bag_of_attracting_components",
     7: "bag_of_elementary_cycles",
+    8: "bag_of_branchless_paths",
 }
 
 
@@ -179,6 +180,24 @@ def bag_of_elementary_cycles(graph, **kwargs):
         ns[:i] = []
 
         label = '-'.join(ns)
+        if label not in bag:
+            bag[label] = 0
+        bag[label] += 1
+
+    return bag
+
+
+def bag_of_branchless_paths(graph, **kwargs):
+    """ Bag of branchless paths """
+
+    bag = {}
+    for i in graph.nodes():
+        if graph.out_degree(i) > 1:
+            graph.remove_node(i)
+
+    for nodes in nx.weakly_connected_components(graph):
+        ns = map(lambda x: graph.node[x]["label"], nodes)
+        label = '-'.join(reversed(ns))
         if label not in bag:
             bag[label] = 0
         bag[label] += 1

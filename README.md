@@ -27,7 +27,7 @@ paragraphs.
         4: Bag of Shortest Paths
         5: Bag of Connected Components
         6: Bag of Attracting Components
-        7: Bag of Elementary Cycles
+        7: Bag of Branchless Paths
 
 For presenting the different modes, we first introduce a simple
 toy example: The following graph consists of 6 nodes and 6 edges.

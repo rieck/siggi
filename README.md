@@ -152,9 +152,16 @@ provide multiple bundles to Siggie on the command line.  This comes
 handy if you have different classes of graphs and want to organize
 them in corresponding archives.
 
-_File suffix:_ Every file entry in a bundle with a `dot` suffix is
-considered a graph in DOT format and loaded accordingly.  All other
-files are ignored.
+_File suffix:_ The format of a graph in a bundle is determined
+by the file suffix. In particular, Siggie supports the following
+formats for loading graphs.
+
+   - Format: [DOT](http://www.graphviz.org/content/dot-language);
+   file suffix: `.dot`
+   - Format: [GraphML](http://graphml.graphdrawing.org);
+   file suffix: `.graphml`
+
+All other files in a bundle are ignored.
 
 _Node labels:_ Siggie operates on labeled graphs.  The nodes of each
 graph have to be labeled using an attribute `label`.  Although each

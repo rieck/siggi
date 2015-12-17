@@ -127,17 +127,7 @@ are provided as lists with nodes being sorted by label.
 
         [C]:  1
 
-### Mode 7: Bag of Elementary Cycles
-
-The graph is represented by a bag of elementary cycles, that is,
-cycles that do not contain a node twice. The extracted cycles are
-rotated, such that the smallest label is in front. This mode uses
-the function `simple_cycles` from `networkx` which can be very
-slow on large graphs with several cycles.
-
-       A --> B --> B --> C:  1
-
-### Mode 8: Bag of Branchless Paths
+### Mode 7: Bag of Branchless Paths
 
 The graph is represented by a bag of branchless paths. The paths are
 determined by first removing all nodes with an outdegree greater

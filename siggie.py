@@ -14,8 +14,7 @@ modes = {
     4: "bag_of_shortest_paths",
     5: "bag_of_connected_components",
     6: "bag_of_attracting_components",
-    7: "bag_of_elementary_cycles",
-    8: "bag_of_branchless_paths",
+    7: "bag_of_branchless_paths",
 }
 
 

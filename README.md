@@ -177,51 +177,72 @@ names.  For example, the filename `042_graph.dot` has the label `42`.
 Note that leading zeros are dropped.
 
 
-## Output Format
+## Feature Hashing
 
 Siggie implements feature hashing as proposed by Weinberger et al.
-(ICML 2009). Instead of mapping the bags of subgraphs to feature
-vectors, each subgraph is represented by a hash value and the
-resulting hash values are mapped to a vector space. Let's look at a
-simple example using a 3-bit hash function.
+(ICML 2009). Instead of directly mapping the bags of subgraphs to
+feature vectors, each subgraph is represented by a hash value and the
+resulting hash values are mapped to a vector space. This mapping is
+done by simply using the hash value as an index.  Let's look at an
+example using a 3-bit hash function.
 
         # Bag           # Hash values      # Feature Vector
         A --> B:  2     A --> B = 001      000:  0 *
         B --> B:  1     B --> B = 101      001:  2
-        B --> C:  2     B --> C = 011      010:  1
-        C --> A:  1     C --> A = 010      011:  2
+        B --> C:  2     B --> C = 111      010:  1
+        C --> A:  1     C --> A = 010      011:  0 *
                                            100:  0 *
                                            101:  1
                                            110:  0 *
-                                           111:  0 *
+                                           111:  2
 
-The bag of subgraphs is mapped to a vector space with 2^3 dimensions.
-Note that dimensions marked with a `*` are usually not saved and the
-resulting output only contains non-zero dimensions. The command-line
-option `-b` can be used to specify the number of bits for the hash
-functions. There is a trade-off: if the number of bits is large, the
-vector space is huge with few to no collisions; if the number of bits
-is low, the vector space is small with potentially many collisions.
+In this example, the bag of subgraphs is mapped to a vector space with
+2^3 dimensions indexed by the hash function. Note that dimensions
+marked with a `*` are not saved and the resulting output only contains
+non-zero dimensions.
 
-Siggie implements a simple technique form the paper by Weinberger to
-et al. to alleviate the impact of collisions.  One bit of the hash
-value is used to assign a sign to the values stored in the
-corresponding dimension. If we pick the previous example and use the
-last bit for this sign, we get the following feature vector
+The command-line option `-b` can be used to specify the number of bits
+for the hash functions. There is a trade-off: if the number of bits is
+large, the vector space is huge with few to no collisions; if the
+number of bits is low, the vector space is small with potentially many
+collisions. Let's look at the example again using a 2-bit hash
+function:
 
         # Bag           # Hash values      # Feature Vector
-        A --> B:  2     A --> B = 001      000:  +0
-        B --> B:  1     B --> B = 101      001:  -2
-        B --> C:  2     B --> C = 011      010:  +1
-        C --> A:  1     C --> A = 010      011:  -2
-                                           100:  +0
-                                           101:  -1
-                                           110:  +0
-                                           111:  -0
+        A --> B:  2     A --> B = 01       00:  0
+        B --> B:  1     B --> B = 01       01:  3   <-- (2 + 1)
+        B --> C:  2     B --> C = 11       10:  1
+        C --> A:  1     C --> A = 10       11:  2
+
+The first two subgraphs collide on the dimension `01` due to the small
+hash size. Siggie implements a simple technique form the paper by
+Weinberger to et al. to slightly alleviate this problem. One bit of
+the hash value is used to assign a sign to the values stored in the
+corresponding dimension. For example, we can use the omitted third
+bit to create a signed mapping as follows
+
+        # Bag           # Hash values      # Feature Vector
+        A --> B:  2     A --> B = 0|01     00:  +0
+        B --> B:  1     B --> B = 1|01     01:  +1  <-- (2 - 1)
+        B --> C:  2     B --> C = 0|11     10:  +1
+        C --> A:  1     C --> A = 0|10     11:  -2
 
 On average collisions cancel out in this signed representation and we
-thus get rid of large values due to collisions. Nonetheless, our
+get rid of large values due to collisions. Nonetheless, our
 representation degrades the more subgraphs collide.
+
+
+## Output Format
+
+Siggie uses the LibSVM format for storing the sparse feature
+vectors. The output takes the following form, where each line
+corresponds to one feature vector:
+
+     <label> <dim>:<val> <dim>:<val> ...
+
+The `label` is derived from the name of the corresponding graph file
+(see Input format). The following pairs `dim:val` each represent one
+dimension and the corresponding value.
 
 
 ## Running Siggie

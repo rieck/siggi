@@ -134,8 +134,8 @@ determined by first removing all nodes with an outdegree greater
 than 1 and then determining the weakly connected components from the
 remaining nodes.
 
-      A --> B --> C --> A: 1
-      C: 1
+        A --> B --> C --> A: 1
+        C: 1
 
 ### Limitations
 
@@ -175,6 +175,53 @@ the corresponding filename using a regular expression.  By default,
 this regular expression matches numbers at the beginning of file
 names.  For example, the filename `042_graph.dot` has the label `42`.
 Note that leading zeros are dropped.
+
+
+## Output Format
+
+Siggie implements feature hashing as proposed by Weinberger et al.
+(ICML 2009). Instead of mapping the bags of subgraphs to feature
+vectors, each subgraph is represented by a hash value and the
+resulting hash values are mapped to a vector space. Let's look at a
+simple example using a 3-bit hash function.
+
+        # Bag           # Hash values      # Feature Vector
+        A --> B:  2     A --> B = 001      000:  0 *
+        B --> B:  1     B --> B = 101      001:  2
+        B --> C:  2     B --> C = 011      010:  1
+        C --> A:  1     C --> A = 010      011:  2
+                                           100:  0 *
+                                           101:  1
+                                           110:  0 *
+                                           111:  0 *
+
+The bag of subgraphs is mapped to a vector space with 2^3 dimensions.
+Note that dimensions marked with a `*` are usually not saved and the
+resulting output only contains non-zero dimensions. The command-line
+option `-b` can be used to specify the number of bits for the hash
+functions. There is a trade-off: if the number of bits is large, the
+vector space is huge with few to no collisions; if the number of bits
+is low, the vector space is small with potentially many collisions.
+
+Siggie implements a simple technique form the paper by Weinberger to
+et al. to alleviate the impact of collisions.  One bit of the hash
+value is used to assign a sign to the values stored in the
+corresponding dimension. If we pick the previous example and use the
+last bit for this sign, we get the following feature vector
+
+        # Bag           # Hash values      # Feature Vector
+        A --> B:  2     A --> B = 001      000:  +0
+        B --> B:  1     B --> B = 101      001:  -2
+        B --> C:  2     B --> C = 011      010:  +1
+        C --> A:  1     C --> A = 010      011:  -2
+                                           100:  +0
+                                           101:  -1
+                                           110:  +0
+                                           111:  -0
+
+On average collisions cancel out in this signed representation and we
+thus get rid of large values due to collisions. Nonetheless, our
+representation degrades the more subgraphs collide.
 
 
 ## Running Siggie

@@ -33,6 +33,10 @@ def add_arguments(parser):
                         help='set size of neighborhoods')
     parser.add_argument('-d', '--depth', metavar='N', default=5, type=int,
                         help='set depth of reachabilities')
+    parser.add_argument('-n', '--norm', metavar='S', default='none',
+                        help='set vector norm: l1, l2 or none')
+    parser.add_argument('-t', '--mtype', metavar='S', default='count',
+                        help='set map type: binary or count')
 
 
 def bag_name(m, **kwargs):
@@ -227,6 +231,44 @@ def bag_to_fvec(bag, **kwargs):
                 hashes[dim].add(key)
 
     return fvec, hashes if "fmap" in kwargs else None
+
+
+def fvec_norm(fvec, **kwargs):
+    """ Normalization of feature vector """
+
+    norm = kwargs["norm"].lower()
+
+    if norm == "l1" or norm == "manhattan":
+        total = map(lambda x: abs(x), fvec.values())
+        total = float(sum(total))
+        for k in fvec.keys():
+            fvec[k] /= total
+
+    elif norm == "l2" or norm == "euclidean":
+        total = map(lambda x: x * x, fvec.values())
+        total = float(sum(total)) ** 0.5
+        for k in fvec.keys():
+            fvec[k] /= total
+
+    elif norm != "none":
+        raise Exception("Unknown vector norm '%s'" % norm)
+
+    return fvec
+
+
+def fvec_mtype(fvec, **kwargs):
+    """ Set map type on feature vectors """
+
+    mtype = kwargs["mtype"].lower()
+
+    if mtype == "binary":
+        for k in fvec.keys():
+            fvec[k] = 1.0
+
+    elif mtype != "count":
+        raise Exception("Unknown map type '%s'" % mtype)
+
+    return fvec
 
 
 def check_graph(graph, **kwargs):

@@ -42,11 +42,18 @@ for i, bundle in enumerate(args.bundle):
     del graphs
 
     # Convert bags to feature vectors
-    print "= Hashing bags to feature vectors"
+    print "= Hashing bags to feature vectors (%d bits)" % args.bits
     func = partial(siggie.bag_to_fvec, **kwargs)
     items = pool.map(func, bags)
     fvecs, fmaps = zip(*items)
     del bags
+
+    # Finalizing mapping
+    print "= Normalizing feature vectors (%s, %s)" % (args.mtype, args.norm)
+    func = partial(siggie.fvec_mtype, **kwargs)
+    fvecs = pool.map(func, fvecs)
+    func = partial(siggie.fvec_norm, **kwargs)
+    fvecs = pool.map(func, fvecs)
 
     if i == 0:
         print "= Saving feature vectors to %s" % args.output

@@ -1,8 +1,5 @@
 # Open Issues
 
-- Normalization of feature vectors: l1, l2, None
-- Support for binary and frequency maps
-- Signed feature hashing by Weinberger et al.
 - Benchmarking of multi-processing implementation
 - Bag of connected graphlets by Shervashidze et al.
 - Implementation of generalized Floyd-Warshal algorithm

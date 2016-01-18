@@ -61,7 +61,7 @@ def save_libsvm(filename, fvecs, labels, append=False):
     for fvec, label in zip(fvecs, labels):
         f.write("%d" % label)
         for dim in sorted(fvec):
-            if fvec[dim] < 1e-9:
+            if abs(fvec[dim]) < 1e-9:
                 continue
             f.write(" %d:%g" % (dim, fvec[dim]))
         f.write("\n")

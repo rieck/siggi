@@ -5,7 +5,6 @@
 - Signed feature hashing by Weinberger et al.
 - Benchmarking of multi-processing implementation
 - Bag of connected graphlets by Shervashidze et al.
-- Simplification/sanitization of parameters (degree, size, ...)
 - Implementation of generalized Floyd-Warshal algorithm
 
 # Interesting Issues

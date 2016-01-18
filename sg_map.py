@@ -48,10 +48,8 @@ for i, bundle in enumerate(args.bundle):
     fvecs, fmaps = zip(*items)
     del bags
 
-    # Finalizing mapping
-    print "= Normalizing feature vectors (%s, %s)" % (args.mtype, args.norm)
-    func = partial(siggie.fvec_mtype, **kwargs)
-    fvecs = pool.map(func, fvecs)
+    # Normalizing feature vectors
+    print "= Normalizing feature vectors (%s, %s)" % (args.map, args.norm)
     func = partial(siggie.fvec_norm, **kwargs)
     fvecs = pool.map(func, fvecs)
 

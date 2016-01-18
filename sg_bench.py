@@ -52,9 +52,13 @@ for mode, fname in modes:
         graph = random.choice(testset)
 
         start = time.time()
+
+        # Compute feature hashing
         func = partial(getattr(siggie, fname), **kwargs)
         bag = func(graph)
         fvec = siggie.bag_to_fvec(bag, **kwargs)
+        fvec = siggie.fvec_norm(fvec, **kwargs)
+
         times.append(time.time() - start)
 
     speed = float(len(times)) / np.sum(times)

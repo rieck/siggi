@@ -15,7 +15,7 @@ import utils
 
 # Parse arguments
 parser = argparse.ArgumentParser(
-    description='Benchmark feature hashing.',
+    description='Siggie - Benchmark Tests for Feature Hashing.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument('bundle', metavar='bundle', nargs='+',

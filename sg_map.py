@@ -11,7 +11,7 @@ import utils
 
 # Parse arguments
 parser = argparse.ArgumentParser(
-    description='Map graphs to vectors.',
+    description='Siggie - Feature Hashing for Labeled Graphs.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument('bundle', metavar='bundle', nargs='+',

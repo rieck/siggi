@@ -1,22 +1,22 @@
 
-# Siggie
+# Siggi
 
 Feature Hashing for Labeled Graphs.
 
 ## Overview
 
-Siggie is a simple tool for mapping a set of labeled graphs to
+Siggi is a simple tool for mapping a set of labeled graphs to
 vectors. The tool implements the classic bag-of-words model using
 hashes of subgraphs.  That is, a labeled graph is characterized by the
 hashes of selected subgraphs, where each hash corresponds to one
-dimension of the vector space.  Siggie supports subgraphs of different
+dimension of the vector space.  Siggi supports subgraphs of different
 complexity, which range from the set of nodes and edges to connected
 components, cliques and closures.
 
 
 ## Bag of Subgraphs
 
-Siggie supports the following modes (bags of subgraphs) for feature
+Siggi supports the following modes (bags of subgraphs) for feature
 hashing. A detailed description of each mode is given in the next
 paragraphs.
 
@@ -139,21 +139,21 @@ remaining nodes.
 
 ### Limitations
 
-Siggie does not support extracting arbitrary subgraphs. This also implies
+Siggi does not support extracting arbitrary subgraphs. This also implies
 that the tool cannot help in solving subgraph isomorphism problems. Please
 relax, it is a simple tool for a simple task.
 
 
 ## Input Format
 
-Siggie operates on so-called _bundles_ of graphs: A bundle is a Zip
+Siggi operates on so-called _bundles_ of graphs: A bundle is a Zip
 archive containing graphs as files in a supported format.  You can
-provide multiple bundles to Siggie on the command line.  This comes
+provide multiple bundles to Siggi on the command line.  This comes
 handy if you have different classes of graphs and want to organize
 them in corresponding archives.
 
 _File suffix:_ The format of a graph in a bundle is determined
-by the file suffix. In particular, Siggie supports the following
+by the file suffix. In particular, Siggi supports the following
 formats for loading graphs.
 
    - Format: [DOT](http://www.graphviz.org/content/dot-language);
@@ -163,14 +163,14 @@ formats for loading graphs.
 
 All other files in a bundle are ignored.
 
-_Node labels:_ Siggie operates on labeled graphs.  The nodes of each
+_Node labels:_ Siggi operates on labeled graphs.  The nodes of each
 graph have to be labeled using an attribute `label`.  Although each
 mode constructs a different representations of a graph, in all modes a
 node matches another node if it shares the same label, for example, a
 neighborhood matches another neighborhood if the respective nodes have
 the same labels and so on.
 
-_Class labels:_ Siggie can extract a class label for each graph from
+_Class labels:_ Siggi can extract a class label for each graph from
 the corresponding filename using a regular expression.  By default,
 this regular expression matches numbers at the beginning of file
 names.  For example, the filename `042_graph.dot` has the label `42`.
@@ -179,7 +179,7 @@ Note that leading zeros are dropped.
 
 ## Feature Hashing
 
-Siggie implements feature hashing as proposed by Weinberger et al.
+Siggi implements feature hashing as proposed by Weinberger et al.
 (ICML 2009). Instead of directly mapping the bags of subgraphs to
 feature vectors, each subgraph is represented by a hash value and the
 resulting hash values are mapped to a vector space. This mapping is
@@ -215,7 +215,7 @@ function:
         C --> A:  1     C --> A = 10       11:  2
 
 The first two subgraphs collide on the dimension `01` due to the small
-hash size. Siggie implements a simple technique form the paper by
+hash size. Siggi implements a simple technique form the paper by
 Weinberger to et al. to slightly alleviate this problem. One bit of
 the hash value is used to assign a sign to the values stored in the
 corresponding dimension. For example, we can use the omitted third
@@ -234,7 +234,7 @@ representation degrades the more subgraphs collide.
 
 ## Output Format
 
-Siggie uses the LibSVM format for storing the sparse feature
+Siggi uses the LibSVM format for storing the sparse feature
 vectors. The output takes the following form, where each line
 corresponds to one feature vector:
 
@@ -245,7 +245,7 @@ The `label` is derived from the name of the corresponding graph file
 dimension and the corresponding value.
 
 
-## Running Siggie
+## Running Siggi
 
 First of all, let us check that everything is working correctly.
 
@@ -255,7 +255,7 @@ First of all, let us check that everything is working correctly.
       OK
 
 Analyzing graphs can be computationally expensive. We thus benchmark
-the different modes supported by Siggie. As an example dataset we use
+the different modes supported by Siggi. As an example dataset we use
 `example.zip`, which contains 8 simple graphs in DOT format.
 
       $ python sg_bench.py example.zip

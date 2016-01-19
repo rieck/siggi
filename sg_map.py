@@ -1,17 +1,17 @@
 #!/usr/bin/env python
-# Siggie - Feature Hashing for Labeled Graphs
+# Siggi - Feature Hashing for Labeled Graphs
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import argparse
 from functools import partial
 from multiprocessing import Pool
 
-import siggie
+import siggi
 import utils
 
 # Parse arguments
 parser = argparse.ArgumentParser(
-    description='Siggie - Feature Hashing for Labeled Graphs.',
+    description='Siggi - Feature Hashing for Labeled Graphs.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument('bundle', metavar='bundle', nargs='+',
@@ -22,7 +22,7 @@ parser.add_argument('-m', '--mode', metavar='N', default=0, type=int,
                     help='set bag mode for feature hashing')
 parser.add_argument('-r', '--regex', metavar='R', default="^\d+",
                     help='set regex for labels in filenames')
-siggie.add_arguments(parser)
+siggi.add_arguments(parser)
 
 args = parser.parse_args()
 kwargs = vars(args)
@@ -34,23 +34,23 @@ pool = Pool()
 for i, bundle in enumerate(args.bundle):
     print "= Loading graphs from bundle %s" % bundle
     graphs, labels = utils.load_graph_zip(bundle, args.regex)
-    pool.map(siggie.check_graph, graphs)
+    pool.map(siggi.check_graph, graphs)
 
-    print "= Extracting %s from graphs" % siggie.bag_name(args.mode, **kwargs)
-    func = partial(getattr(siggie, siggie.modes[args.mode]), **kwargs)
+    print "= Extracting %s from graphs" % siggi.bag_name(args.mode, **kwargs)
+    func = partial(getattr(siggi, siggi.modes[args.mode]), **kwargs)
     bags = pool.map(func, graphs)
     del graphs
 
     # Convert bags to feature vectors
     print "= Hashing bags to feature vectors (%d bits)" % args.bits
-    func = partial(siggie.bag_to_fvec, **kwargs)
+    func = partial(siggi.bag_to_fvec, **kwargs)
     items = pool.map(func, bags)
     fvecs, fmaps = zip(*items)
     del bags
 
     # Normalizing feature vectors
     print "= Normalizing feature vectors (%s, %s)" % (args.map, args.norm)
-    func = partial(siggie.fvec_norm, **kwargs)
+    func = partial(siggi.fvec_norm, **kwargs)
     fvecs = pool.map(func, fvecs)
 
     if i == 0:

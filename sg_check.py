@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Siggie - Feature Hashing for Labeled Graphs
+# Siggi - Feature Hashing for Labeled Graphs
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import unittest
@@ -7,7 +7,7 @@ import unittest
 import networkx as nx
 import pygraphviz as pg
 
-import siggie
+import siggi
 
 # Test cases in DOT format
 dot_strings = [
@@ -61,7 +61,7 @@ class TestCases(unittest.TestCase):
 
         for i, string in enumerate(dot_strings):
             graph = get_graph(string)
-            bag = siggie.bag_of_nodes(graph)
+            bag = siggi.bag_of_nodes(graph)
             self.assertEqual(bag, bags[i])
 
     def test_bag_of_edges(self):
@@ -75,7 +75,7 @@ class TestCases(unittest.TestCase):
 
         for i, string in enumerate(dot_strings):
             graph = get_graph(string)
-            bag = siggie.bag_of_edges(graph)
+            bag = siggi.bag_of_edges(graph)
             self.assertEqual(bag, bags[i])
 
     def test_bag_of_neighborhoods(self):
@@ -97,7 +97,7 @@ class TestCases(unittest.TestCase):
 
         for i, string in enumerate(dot_strings):
             graph = get_graph(string)
-            bag = siggie.bag_of_neighborhoods(graph, size=2)
+            bag = siggi.bag_of_neighborhoods(graph, size=2)
             self.assertEqual(bag, bags[i])
 
     def test_bag_of_reachabilities(self):
@@ -119,7 +119,7 @@ class TestCases(unittest.TestCase):
 
         for i, string in enumerate(dot_strings):
             graph = get_graph(string)
-            bag = siggie.bag_of_reachabilities(graph, depth=2)
+            bag = siggi.bag_of_reachabilities(graph, depth=2)
             self.assertEqual(bag, bags[i])
 
     def test_bag_of_shortest_paths(self):
@@ -142,7 +142,7 @@ class TestCases(unittest.TestCase):
 
         for i, string in enumerate(dot_strings):
             graph = get_graph(string)
-            bag = siggie.bag_of_shortest_paths(graph, minlen=2, maxlen=3)
+            bag = siggi.bag_of_shortest_paths(graph, minlen=2, maxlen=3)
             self.assertEqual(bag, bags[i])
 
     def test_bag_of_connected_components(self):
@@ -156,7 +156,7 @@ class TestCases(unittest.TestCase):
 
         for i, string in enumerate(dot_strings):
             graph = get_graph(string)
-            bag = siggie.bag_of_connected_components(graph)
+            bag = siggi.bag_of_connected_components(graph)
             self.assertEqual(bag, bags[i])
 
     def test_bag_of_attracting_components(self):
@@ -170,7 +170,7 @@ class TestCases(unittest.TestCase):
 
         for i, string in enumerate(dot_strings):
             graph = get_graph(string)
-            bag = siggie.bag_of_attracting_components(graph)
+            bag = siggi.bag_of_attracting_components(graph)
             self.assertEqual(bag, bags[i])
 
     def test_of_elementary_cycles(self):
@@ -184,7 +184,7 @@ class TestCases(unittest.TestCase):
 
         for i, string in enumerate(dot_strings):
             graph = get_graph(string)
-            bag = siggie.bag_of_elementary_cycles(graph)
+            bag = siggi.bag_of_elementary_cycles(graph)
             self.assertEqual(bag, bags[i])
 
     def test_of_branchless_paths(self):
@@ -198,7 +198,7 @@ class TestCases(unittest.TestCase):
 
         for i, string in enumerate(dot_strings):
             graph = get_graph(string)
-            bag = siggie.bag_of_branchless_paths(graph)
+            bag = siggi.bag_of_branchless_paths(graph)
             self.assertEqual(bag, bags[i])
 
 

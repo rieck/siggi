@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Siggie - Feature Hashing for Labeled Graphs
+# Siggi - Feature Hashing for Labeled Graphs
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import argparse
@@ -10,12 +10,12 @@ from multiprocessing import Pool
 
 import numpy as np
 
-import siggie
+import siggi
 import utils
 
 # Parse arguments
 parser = argparse.ArgumentParser(
-    description='Siggie - Benchmark Tests for Feature Hashing.',
+    description='Siggi - Benchmark Tests for Feature Hashing.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument('bundle', metavar='bundle', nargs='+',
@@ -24,7 +24,7 @@ parser.add_argument('-m', '--mode', metavar='N', default=-1, type=int,
                     help='set bag mode for feature hashing')
 parser.add_argument('-t', '--time', metavar='N', default=1, type=float,
                     help='number of seconds to benchmark')
-siggie.add_arguments(parser)
+siggi.add_arguments(parser)
 args = parser.parse_args()
 kwargs = vars(args)
 
@@ -37,13 +37,13 @@ testset = []
 for i, bundle in enumerate(args.bundle):
     print "= Loading graphs from bundle %s" % bundle
     graphs, _ = utils.load_graph_zip(bundle)
-    pool.map(siggie.check_graph, graphs)
+    pool.map(siggi.check_graph, graphs)
     testset.extend(graphs)
 
 if args.mode == -1:
-    modes = siggie.modes.items()
+    modes = siggi.modes.items()
 else:
-    modes = [(args.mode, siggie.modes[args.mode])]
+    modes = [(args.mode, siggi.modes[args.mode])]
 
 print "= Benchmarking modes for %g seconds" % args.time
 for mode, fname in modes:
@@ -54,10 +54,10 @@ for mode, fname in modes:
         start = time.time()
 
         # Compute feature hashing
-        func = partial(getattr(siggie, fname), **kwargs)
+        func = partial(getattr(siggi, fname), **kwargs)
         bag = func(graph)
-        fvec = siggie.bag_to_fvec(bag, **kwargs)
-        fvec = siggie.fvec_norm(fvec, **kwargs)
+        fvec = siggi.bag_to_fvec(bag, **kwargs)
+        fvec = siggi.fvec_norm(fvec, **kwargs)
 
         times.append(time.time() - start)
 

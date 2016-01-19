@@ -1,4 +1,4 @@
-# Siggie - Feature Hashing for Labeled Graph
+# Siggi - Feature Hashing for Labeled Graph
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import json

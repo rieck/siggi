@@ -34,7 +34,7 @@ def load_graph_zip(filename, regex="^\d+"):
 def save_graph_zip(filename, graphs, format="graphml", label=0):
     """ Save graphs to zip archive """
 
-    archive = zf.ZipFile(filename, "w", zf.ZIP_DEFLATED)
+    archive = zf.ZipFile(filename, "a", zf.ZIP_DEFLATED)
     # This should be parallized one day
     for (i, graph) in enumerate(graphs):
         fname = "%d_%.6d.%s" % (label, i, format)

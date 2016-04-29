@@ -1,5 +1,5 @@
 # Siggi - Feature Hashing for Labeled Graph
-# (c) 2015 Konrad Rieck (konrad@mlsec.org)
+# (c) 2015-2016 Konrad Rieck (konrad@mlsec.org)
 
 import json
 import os
@@ -7,6 +7,7 @@ import re
 import zipfile as zf
 from functools import partial
 from multiprocessing import Pool
+
 import networkx as nx
 import pygraphviz as pg
 
@@ -30,12 +31,22 @@ def load_graph_zip(filename, regex="^\d+"):
     return graphs, labels
 
 
+def save_graph_zip(filename, graphs, format="graphml", label=0):
+    """ Save graphs to zip archive """
+
+    archive = zf.ZipFile(filename, "w", zf.ZIP_DEFLATED)
+    for (i, graph) in enumerate(graphs):
+        fname = "%d_%.6d.%s" % (label, i, format)
+        archive.writestr(fname, graph)
+    archive.close()
+
+
 def load_graph_entry((archive, entry), regex):
     """ Load one graph from zip archive """
 
     # Determine label
     match = regex.match(os.path.basename(entry))
-    if  match and len(match.group(0)) > 0:
+    if match and len(match.group(0)) > 0:
         label = int(match.group(0))
     else:
         label = 0

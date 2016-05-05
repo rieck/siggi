@@ -54,12 +54,13 @@ def load_graph_entry((archive, entry), regex):
 
     if entry.endswith(".dot"):
         graph = pg.AGraph(archive.open(entry).read())
-        return nx.drawing.nx_agraph.from_agraph(graph), label
+        graph = nx.drawing.nx_agraph.from_agraph(graph)
     elif entry.endswith(".graphml"):
         graph = nx.read_graphml(archive.open(entry))
-        return graph, label
     else:
-        return None, 0
+        graph = None
+
+    return nx.DiGraph(graph), label
 
 
 def save_libsvm(filename, fvecs, labels, append=False):

@@ -46,7 +46,7 @@ dot_strings = [
 def get_graph(string):
     """ Create a graph from a DOT string """
     dot = pg.AGraph(string)
-    return nx.from_agraph(dot)
+    return nx.drawing.nx_agraph.from_agraph(dot)
 
 
 class TestCases(unittest.TestCase):

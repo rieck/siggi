@@ -54,7 +54,7 @@ def load_graph_entry((archive, entry), regex):
 
     if entry.endswith(".dot"):
         graph = pg.AGraph(archive.open(entry).read())
-        return nx.from_agraph(graph), label
+        return nx.drawing.nx_agraph.from_agraph(graph), label
     elif entry.endswith(".graphml"):
         graph = nx.read_graphml(archive.open(entry))
         return graph, label

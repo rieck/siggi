@@ -1,3 +1,4 @@
 *.pyc
 *.libsvm
 .idea
+datasets/.gitattributes

@@ -1,6 +1,7 @@
 # Siggi - Feature Hashing for Labeled Graph
 # (c) 2015-2016 Konrad Rieck (konrad@mlsec.org)
 
+import StringIO
 import json
 import os
 import re
@@ -31,17 +32,6 @@ def load_graph_zip(filename, regex="^\d+"):
     return graphs, labels
 
 
-def save_graph_zip(filename, graphs, format="graphml", label=0):
-    """ Save graphs to zip archive """
-
-    archive = zf.ZipFile(filename, "a", zf.ZIP_DEFLATED)
-    # This should be parallized one day
-    for (i, graph) in enumerate(graphs):
-        fname = "%d_%.6d.%s" % (label, i, format)
-        archive.writestr(fname, graph)
-    archive.close()
-
-
 def load_graph_entry((archive, entry), regex):
     """ Load one graph from zip archive """
 
@@ -61,6 +51,37 @@ def load_graph_entry((archive, entry), regex):
         graph = None
 
     return nx.DiGraph(graph), label
+
+
+def save_graph_zip(filename, graphs, format="dot", label=0):
+    """ Save graphs to zip archive """
+
+    archive = zf.ZipFile(filename, "a", zf.ZIP_DEFLATED)
+    # This should be parallized one day
+    for (i, graph) in enumerate(graphs):
+        entry = "%d_%.6d.%s" % (label, i, format)
+        save_graph_entry((archive, entry), graph)
+
+    archive.close()
+
+
+def save_graph_entry((archive, entry), graph, format="dot"):
+    """ Save graphs to zip archive """
+
+    if format == "dot":
+        _, tf = tempfile.mkstemp()
+        nx.drawing.nx_agraph.write_dot(graph, tf)
+        data = open(tf).read()
+        os.unlink(tf)
+    elif format == "graphml":
+        out = StringIO.StringIO()
+        nx.write_graphml(graph, out)
+        data = out.getvalue()
+        out.close()
+    else:
+        raise Exception("Unknown format %s" % format)
+
+    archive.writestr(entry, data)
 
 
 def save_libsvm(filename, fvecs, labels, append=False):

@@ -18,6 +18,10 @@ def __check_suffix(entry):
     return entry.endswith(".dot") or entry.endswith(".graphml")
 
 
+def chunkify_entries(entries, num):
+    k, m = len(entries) / num, len(entries) % num
+    return (entries[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in xrange(num))
+
 def get_entries_zip(filename):
     """ Return filename entries from zip """
 
@@ -28,7 +32,7 @@ def get_entries_zip(filename):
     return entries
 
 
-def load_graph_zip(filename, regex="^\d+", subset=None):
+def load_graph_zip(filename, regex="^\d+", chunk=None):
     """ Load graphs from zip archive """
 
     pool = Pool()
@@ -36,8 +40,8 @@ def load_graph_zip(filename, regex="^\d+", subset=None):
 
     # Determine entries and select subset if requested
     entries = archive.namelist()
-    if subset:
-        entries = list(set(entries) & set(subset))
+    if chunk:
+        entries = list(set(entries) & set(chunk))
     entries = [(archive, entry) for entry in entries]
 
     # Load entries in parallel

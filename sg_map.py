@@ -22,6 +22,8 @@ parser.add_argument('-m', '--mode', metavar='N', default=0, type=int,
                     help='set bag mode for feature hashing')
 parser.add_argument('-r', '--regex', metavar='R', default="^\d+",
                     help='set regex for labels in filenames')
+parser.add_argument('-c', '--chunks', metavar='N', default=1, type=int,
+                    help='set number of chunks to process')
 siggi.add_arguments(parser)
 
 args = parser.parse_args()
@@ -32,33 +34,37 @@ pool = Pool()
 
 # Loop over bundles on command line
 for i, bundle in enumerate(args.bundle):
-    print "= Loading graphs from bundle %s" % bundle
-    graphs, labels = utils.load_graph_zip(bundle, args.regex)
-    pool.map(siggi.check_graph, graphs)
+    # Get entries and create chunks
+    entries = utils.get_entries_zip(bundle)
+    for chunk in utils.chunkify_entries(entries, args.chunks):
 
-    print "= Extracting %s from graphs" % siggi.bag_name(args.mode, **kwargs)
-    func = partial(getattr(siggi, siggi.modes[args.mode]), **kwargs)
-    bags = pool.map(func, graphs)
-    del graphs
+        print "= Loading %d graphs from bundle %s" % (len(chunk), bundle)
+        graphs, labels = utils.load_graph_zip(bundle, args.regex, chunk=chunk)
+        pool.map(siggi.check_graph, graphs)
 
-    # Convert bags to feature vectors
-    print "= Hashing bags to feature vectors (%d bits)" % args.bits
-    func = partial(siggi.bag_to_fvec, **kwargs)
-    items = pool.map(func, bags)
-    fvecs, fmaps = zip(*items)
-    del bags
+        print "= Extracting %s from graphs" % siggi.bag_name(args.mode, **kwargs)
+        func = partial(getattr(siggi, siggi.modes[args.mode]), **kwargs)
+        bags = pool.map(func, graphs)
+        del graphs
 
-    # Normalizing feature vectors
-    print "= Normalizing feature vectors (%s, %s)" % (args.map, args.norm)
-    func = partial(siggi.fvec_norm, **kwargs)
-    fvecs = pool.map(func, fvecs)
+        # Convert bags to feature vectors
+        print "= Hashing bags to feature vectors (%d bits)" % args.bits
+        func = partial(siggi.bag_to_fvec, **kwargs)
+        items = pool.map(func, bags)
+        fvecs, fmaps = zip(*items)
+        del bags
 
-    if i == 0:
-        print "= Saving feature vectors to %s" % args.output
-        utils.save_libsvm(args.output, fvecs, labels)
-    else:
-        print "= Appending feature vectors to %s" % args.output
-        utils.save_libsvm(args.output, fvecs, labels, append=True)
+        # Normalizing feature vectors
+        print "= Normalizing feature vectors (%s, %s)" % (args.map, args.norm)
+        func = partial(siggi.fvec_norm, **kwargs)
+        fvecs = pool.map(func, fvecs)
+
+        if i == 0:
+            print "= Saving feature vectors to %s" % args.output
+            utils.save_libsvm(args.output, fvecs, labels)
+        else:
+            print "= Appending feature vectors to %s" % args.output
+            utils.save_libsvm(args.output, fvecs, labels, append=True)
 
 if args.fmap:
     print "= Saving feature map to %s" % args.fmap

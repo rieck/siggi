@@ -8,8 +8,6 @@ import time
 from functools import partial
 from multiprocessing import Pool
 
-import numpy as np
-
 import siggi
 import utils
 
@@ -42,7 +40,7 @@ for i, bundle in enumerate(args.bundle):
     random.shuffle(entries)
     sample = entries[:int(args.ratio * len(entries))]
 
-    graphs, _ = utils.load_graph_zip(bundle, subset=sample)
+    graphs, _ = utils.load_graph_zip(bundle, chunk=sample)
     pool.map(siggi.check_graph, graphs)
     testset.extend(graphs)
 

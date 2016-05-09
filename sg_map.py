@@ -35,11 +35,11 @@ pool = Pool()
 # Loop over bundles on command line
 for i, bundle in enumerate(args.bundle):
     # Get entries and create chunks
-    entries = utils.get_entries_zip(bundle)
+    entries = utils.list_bundle(bundle)
     for chunk in utils.chunkify_entries(entries, args.chunks):
 
         print "= Loading %d graphs from bundle %s" % (len(chunk), bundle)
-        graphs, labels = utils.load_graph_zip(bundle, args.regex, chunk=chunk)
+        graphs, labels = utils.load_bundle(bundle, args.regex, chunk=chunk)
         pool.map(siggi.check_graph, graphs)
 
         print "= Extracting %s from graphs" % siggi.bag_name(args.mode, **kwargs)

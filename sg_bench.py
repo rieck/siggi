@@ -36,11 +36,11 @@ pool = Pool()
 testset = []
 for i, bundle in enumerate(args.bundle):
     print "= Loading graphs from bundle %s" % bundle
-    entries = utils.get_entries_zip(bundle)
+    entries = utils.list_bundle(bundle)
     random.shuffle(entries)
     sample = entries[:int(args.ratio * len(entries))]
 
-    graphs, _ = utils.load_graph_zip(bundle, chunk=sample)
+    graphs, _ = utils.load_bundle(bundle, chunk=sample)
     pool.map(siggi.check_graph, graphs)
     testset.extend(graphs)
 

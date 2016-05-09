@@ -5,6 +5,7 @@ import StringIO
 import json
 import os
 import re
+import tempfile
 import zipfile as zf
 from functools import partial
 from multiprocessing import Pool
@@ -20,9 +21,11 @@ def __check_suffix(entry):
 
 def chunkify_entries(entries, num):
     k, m = len(entries) / num, len(entries) % num
-    return (entries[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in xrange(num))
+    return (entries[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in
+            xrange(num))
 
-def get_entries_zip(filename):
+
+def list_bundle(filename):
     """ Return filename entries from zip """
 
     archive = zf.ZipFile(filename)
@@ -32,7 +35,7 @@ def get_entries_zip(filename):
     return entries
 
 
-def load_graph_zip(filename, regex="^\d+", chunk=None):
+def load_bundle(filename, regex="^\d+", chunk=None):
     """ Load graphs from zip archive """
 
     pool = Pool()
@@ -45,7 +48,7 @@ def load_graph_zip(filename, regex="^\d+", chunk=None):
     entries = [(archive, entry) for entry in entries]
 
     # Load entries in parallel
-    func = partial(load_graph_entry, regex=re.compile(regex))
+    func = partial(load_bundle_entry, regex=re.compile(regex))
     items = pool.map(func, entries)
     items = filter(lambda (g, l): g is not None, items)
     graphs, labels = zip(*items)
@@ -57,7 +60,7 @@ def load_graph_zip(filename, regex="^\d+", chunk=None):
     return graphs, labels
 
 
-def load_graph_entry((archive, entry), regex):
+def load_bundle_entry((archive, entry), regex):
     """ Load one graph from zip archive """
 
     # Determine label
@@ -79,19 +82,19 @@ def load_graph_entry((archive, entry), regex):
     return nx.DiGraph(graph), label
 
 
-def save_graph_zip(filename, graphs, format="dot", label=0):
+def save_bundle(filename, graphs, format="dot", label=0):
     """ Save graphs to zip archive """
 
     archive = zf.ZipFile(filename, "a", zf.ZIP_DEFLATED)
     # This should be parallized one day
     for (i, graph) in enumerate(graphs):
         entry = "%d_%.6d.%s" % (label, i, format)
-        save_graph_entry((archive, entry), graph)
+        save_bundle_entry((archive, entry), graph)
 
     archive.close()
 
 
-def save_graph_entry((archive, entry), graph, format="dot"):
+def save_bundle_entry((archive, entry), graph, format="dot"):
     """ Save graphs to zip archive """
 
     if format == "dot":

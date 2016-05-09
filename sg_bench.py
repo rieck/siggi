@@ -28,7 +28,6 @@ siggi.add_arguments(parser)
 args = parser.parse_args()
 kwargs = vars(args)
 
-
 # Initialize pool for multi-threading
 pool = Pool()
 

@@ -14,11 +14,6 @@ import networkx as nx
 import pygraphviz as pg
 
 
-def __check_suffix(entry):
-    """ Check the suffix of a filename entry """
-    return entry.endswith(".dot") or entry.endswith(".graphml")
-
-
 def chunkify_entries(entries, num):
     k, m = len(entries) / num, len(entries) % num
     return (entries[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in
@@ -27,6 +22,10 @@ def chunkify_entries(entries, num):
 
 def list_bundle(filename):
     """ Return filename entries from zip """
+
+    def __check_suffix(entry):
+        """ Check the suffix of a filename entry """
+        return entry.endswith(".dot") or entry.endswith(".graphml")
 
     archive = zf.ZipFile(filename)
     entries = filter(__check_suffix, archive.namelist())

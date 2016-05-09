@@ -42,7 +42,8 @@ for i, bundle in enumerate(args.bundle):
         graphs, labels = utils.load_bundle(bundle, args.regex, chunk=chunk)
         pool.map(siggi.check_graph, graphs)
 
-        print "= Extracting %s from graphs" % siggi.bag_name(args.mode, **kwargs)
+        print "= Extracting %s from graphs" % siggi.bag_name(args.mode,
+                                                             **kwargs)
         func = partial(getattr(siggi, siggi.modes[args.mode]), **kwargs)
         bags = pool.map(func, graphs)
         del graphs

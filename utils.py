@@ -13,13 +13,34 @@ import networkx as nx
 import pygraphviz as pg
 
 
-def load_graph_zip(filename, regex="^\d+"):
+def __check_suffix(entry):
+    """ Check the suffix of a filename entry """
+    return entry.endswith(".dot") or entry.endswith(".graphml")
+
+
+def get_entries_zip(filename):
+    """ Return filename entries from zip """
+
+    archive = zf.ZipFile(filename)
+    entries = filter(__check_suffix, archive.namelist())
+    archive.close()
+
+    return entries
+
+
+def load_graph_zip(filename, regex="^\d+", subset=None):
     """ Load graphs from zip archive """
 
     pool = Pool()
     archive = zf.ZipFile(filename)
 
-    entries = [(archive, entry) for entry in archive.namelist()]
+    # Determine entries and select subset if requested
+    entries = archive.namelist()
+    if subset:
+        entries = list(set(entries) & set(subset))
+    entries = [(archive, entry) for entry in entries]
+
+    # Load entries in parallel
     func = partial(load_graph_entry, regex=re.compile(regex))
     items = pool.map(func, entries)
     items = filter(lambda (g, l): g is not None, items)
@@ -42,6 +63,7 @@ def load_graph_entry((archive, entry), regex):
     else:
         label = 0
 
+    # Determine format and load graph
     if entry.endswith(".dot"):
         graph = pg.AGraph(archive.open(entry).read())
         graph = nx.drawing.nx_agraph.from_agraph(graph)

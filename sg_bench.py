@@ -24,6 +24,8 @@ parser.add_argument('-m', '--mode', metavar='N', default=-1, type=int,
                     help='set bag mode for feature hashing')
 parser.add_argument('-t', '--time', metavar='N', default=1, type=float,
                     help='number of seconds to benchmark')
+parser.add_argument('-r', '--ratio', metavar='R', default=1, type=float,
+                    help='sample ratio to use for benchmark')
 siggi.add_arguments(parser)
 args = parser.parse_args()
 kwargs = vars(args)
@@ -36,7 +38,11 @@ pool = Pool()
 testset = []
 for i, bundle in enumerate(args.bundle):
     print "= Loading graphs from bundle %s" % bundle
-    graphs, _ = utils.load_graph_zip(bundle)
+    entries = utils.get_entries_zip(bundle)
+    random.shuffle(entries)
+    sample = entries[:int(args.ratio * len(entries))]
+
+    graphs, _ = utils.load_graph_zip(bundle, subset=sample)
     pool.map(siggi.check_graph, graphs)
     testset.extend(graphs)
 
@@ -49,9 +55,8 @@ print "= Benchmarking modes for %g seconds" % args.time
 for mode, fname in modes:
     times = []
     while np.sum(times) < args.time:
-        graph = random.choice(testset)
-
         start = time.time()
+        graph = random.choice(testset)
 
         # Compute feature hashing
         func = partial(getattr(siggi, fname), **kwargs)

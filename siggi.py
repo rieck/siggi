@@ -216,7 +216,7 @@ def bag_to_fvec(bag, **kwargs):
 
     for key in bag:
         hash = utils.murmur3(key)
-        dim = hash & (1 << kwargs["bits"]) - 1
+        dim = (hash & (1 << kwargs["bits"]) - 1) + 1
         sign = 2 * (hash >> 31) - 1
 
         if dim not in fvec:

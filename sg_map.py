@@ -36,7 +36,8 @@ pool = Pool()
 for i, bundle in enumerate(args.bundle):
     # Get entries and create chunks
     entries = utils.list_bundle(bundle)
-    for chunk in utils.chunkify_entries(entries, args.chunks):
+    chunks = utils.chunkify_entries(entries, args.chunks)
+    for j, chunk in enumerate(chunks):
 
         print "= Loading %d graphs from bundle %s" % (len(chunk), bundle)
         graphs, labels = utils.load_bundle(bundle, args.regex, chunk=chunk)
@@ -60,7 +61,7 @@ for i, bundle in enumerate(args.bundle):
         func = partial(siggi.fvec_norm, **kwargs)
         fvecs = pool.map(func, fvecs)
 
-        if i == 0:
+        if i == 0 and j == 0:
             print "= Saving feature vectors to %s" % args.output
             utils.save_libsvm(args.output, fvecs, labels)
         else:

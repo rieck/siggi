@@ -14,6 +14,18 @@ complexity, which range from the set of nodes and edges to connected
 components, cliques and closures.
 
 
+## Requirements
+
+The following Python packages are needed to use Siggi:
+
+	decorator>=4.0.9
+	networkx>=1.10
+	pygraphviz>=1.2
+
+Note that you may need additional packages required by the above
+dependencies.  For example, on Ubuntu you need `python-dev` and
+`graphviz-dev` to build `pygraphviz`.
+
 ## Bag of Subgraphs
 
 Siggi supports the following modes (bags of subgraphs) for feature

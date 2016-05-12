@@ -43,7 +43,7 @@ Master thesis at the University of Goettingen, Germany.
    to correctly assign each enzyme to one of the six EC top level
    classes.
 
-   _Source:_ K. M. Borgwardt, C. S. Ong, S. Schönauer,
+   _Source:_ K. M. Borgwardt, C. S. Ong, S. Schönauer,
    S. V. N. Vishwanathan, A. J. Smola and H.-P. Kriegel. Protein
    function prediction via graph kernels. Bioinformatics, 21(1):47-56,
    Jan. 2005.
@@ -119,7 +119,7 @@ Master thesis at the University of Goettingen, Germany.
    for evaluation.
 
 
-    _Source:_ H. Toivonen, A. Srinivasan, R. D. King, S. Kramer, and
-    C. Helma. Statistical evaluation of the predictive toxicology
-    challenge 2000-2001.  Bioinformatics (Oxford, England),
-    19(10):1183-1193, 2003.
+   _Source:_ H. Toivonen, A. Srinivasan, R. D. King, S. Kramer, and
+   C. Helma. Statistical evaluation of the predictive toxicology
+   challenge 2000-2001.  Bioinformatics (Oxford, England),
+   19(10):1183-1193, 2003.

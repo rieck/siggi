@@ -63,7 +63,7 @@ def load_bundle_entry((archive, entry), regex):
     """ Load one graph from zip archive """
 
     # Determine label
-    match = regex.match(os.path.basename(entry))
+    match = regex.match_string(os.path.basename(entry))
     if match and len(match.group(0)) > 0:
         label = int(match.group(0))
     else:

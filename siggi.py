@@ -228,7 +228,7 @@ def bag_to_fvec(bag, **kwargs):
             if dim not in hashes:
                 hashes[dim] = set()
             if key not in hashes[dim]:
-                hashes[dim].add(key)
+                hashes[dim].add_string(key)
 
     return fvec, hashes if "fmap" in kwargs else None
 

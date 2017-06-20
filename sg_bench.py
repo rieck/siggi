@@ -5,6 +5,7 @@
 import argparse
 import random
 import time
+import numpy as np
 from functools import partial
 from multiprocessing import Pool
 

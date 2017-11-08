@@ -40,7 +40,6 @@ for i, bundle in enumerate(args.bundle):
 
         print "= Loading %d graphs from bundle %s" % (len(chunk), bundle)
         graphs, labels = utils.load_bundle(bundle, args.regex, chunk=chunk)
-        pool.map(siggi.check_graph, graphs)
 
         print "= Extracting %s from graphs" % siggi.bag_name(args.mode)
         func = getattr(siggi, siggi.modes[args.mode])

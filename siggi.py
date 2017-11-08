@@ -2,6 +2,7 @@
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import networkx as nx
+import string
 
 import utils
 
@@ -52,7 +53,17 @@ def set_args(pargs):
 
 def node_label(node):
     """ Return the label of a node """
-    return node[args.label]
+
+    output = []
+    labels = map(string.strip, args.label.split(","))
+
+    for label in labels:
+        if label in node:
+            output.append(str(node[label]))
+        else:
+            output.append('')
+
+    return '|'.join(output)
 
 
 def bag_name(m):
@@ -278,12 +289,3 @@ def fvec_norm(fvec):
 
     return fvec
 
-
-def check_graph(graph):
-    """ Check if a graph is suitable for analysis """
-
-    for i in graph.nodes():
-        if args.label not in graph.node[i]:
-            raise Exception('Node %s is not labeled' % i)
-        if len(node_label(graph.node[i])) == 0:
-            raise Exception('Label of node %s is empty' % i)

@@ -3,7 +3,6 @@
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
 import argparse
-from functools import partial
 from multiprocessing import Pool
 
 import siggi
@@ -27,7 +26,7 @@ parser.add_argument('-c', '--chunks', metavar='N', default=1, type=int,
 siggi.add_arguments(parser)
 
 args = parser.parse_args()
-kwargs = vars(args)
+siggi.set_args(args)
 
 # Initialize pool for multi-threading
 pool = Pool()
@@ -43,23 +42,20 @@ for i, bundle in enumerate(args.bundle):
         graphs, labels = utils.load_bundle(bundle, args.regex, chunk=chunk)
         pool.map(siggi.check_graph, graphs)
 
-        print "= Extracting %s from graphs" % siggi.bag_name(args.mode,
-                                                             **kwargs)
-        func = partial(getattr(siggi, siggi.modes[args.mode]), **kwargs)
+        print "= Extracting %s from graphs" % siggi.bag_name(args.mode)
+        func = getattr(siggi, siggi.modes[args.mode])
         bags = pool.map(func, graphs)
         del graphs
 
         # Convert bags to feature vectors
         print "= Hashing bags to feature vectors (%d bits)" % args.bits
-        func = partial(siggi.bag_to_fvec, **kwargs)
-        items = pool.map(func, bags)
+        items = pool.map(siggi.bag_to_fvec, bags)
         fvecs, fmaps = zip(*items)
         del bags
 
         # Normalizing feature vectors
         print "= Normalizing feature vectors (%s, %s)" % (args.map, args.norm)
-        func = partial(siggi.fvec_norm, **kwargs)
-        fvecs = pool.map(func, fvecs)
+        fvecs = pool.map(siggi.fvec_norm, fvecs)
 
         if i == 0 and j == 0:
             print "= Saving feature vectors to %s" % args.output

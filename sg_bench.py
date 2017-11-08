@@ -5,8 +5,6 @@
 import argparse
 import random
 import time
-import numpy as np
-from functools import partial
 from multiprocessing import Pool
 
 import siggi
@@ -27,7 +25,7 @@ parser.add_argument('-r', '--ratio', metavar='R', default=1, type=float,
                     help='sample ratio to use for benchmark')
 siggi.add_arguments(parser)
 args = parser.parse_args()
-kwargs = vars(args)
+siggi.set_args(args)
 
 # Initialize pool for multi-threading
 pool = Pool()
@@ -52,19 +50,19 @@ else:
 print "= Benchmarking modes for %g seconds" % args.time
 for mode, fname in modes:
     times = []
-    while np.sum(times) < args.time:
+    while sum(times) < args.time:
         start = time.time()
         graph = random.choice(testset)
 
         # Compute feature hashing
-        func = partial(getattr(siggi, fname), **kwargs)
+        func = getattr(siggi, fname)
         bag = func(graph)
-        fvec = siggi.bag_to_fvec(bag, **kwargs)
-        fvec = siggi.fvec_norm(fvec, **kwargs)
+        fvec = siggi.bag_to_fvec(bag)
+        fvec = siggi.fvec_norm(fvec)
 
         times.append(time.time() - start)
 
-    speed = float(len(times)) / np.sum(times)
+    speed = float(len(times)) / sum(times)
     print "  Mode: %d | %5.0f graphs/s | %7.2f ms/graph | +/- %5.2f" % (
         mode, speed, 1000 * utils.mean(times), 1000 * utils.std(times)
     )

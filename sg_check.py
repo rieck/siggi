@@ -2,6 +2,7 @@
 # Siggi - Feature Hashing for Labeled Graphs
 # (c) 2015 Konrad Rieck (konrad@mlsec.org)
 
+import argparse
 import unittest
 
 import networkx as nx
@@ -97,7 +98,8 @@ class TestCases(unittest.TestCase):
 
         for i, string in enumerate(dot_strings):
             graph = get_graph(string)
-            bag = siggi.bag_of_neighborhoods(graph, size=2)
+            siggi.args.size = 2
+            bag = siggi.bag_of_neighborhoods(graph)
             self.assertEqual(bag, bags[i])
 
     def test_bag_of_reachabilities(self):
@@ -119,7 +121,8 @@ class TestCases(unittest.TestCase):
 
         for i, string in enumerate(dot_strings):
             graph = get_graph(string)
-            bag = siggi.bag_of_reachabilities(graph, depth=2)
+            siggi.args.depth = 2
+            bag = siggi.bag_of_reachabilities(graph)
             self.assertEqual(bag, bags[i])
 
     def test_bag_of_shortest_paths(self):
@@ -142,7 +145,9 @@ class TestCases(unittest.TestCase):
 
         for i, string in enumerate(dot_strings):
             graph = get_graph(string)
-            bag = siggi.bag_of_shortest_paths(graph, minlen=2, maxlen=3)
+            siggi.args.minlen = 2
+            siggi.args.maxlen = 3
+            bag = siggi.bag_of_shortest_paths(graph)
             self.assertEqual(bag, bags[i])
 
     def test_bag_of_connected_components(self):
@@ -203,4 +208,12 @@ class TestCases(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description='Siggi - Some Unit Tests.',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    siggi.add_arguments(parser)
+    args = parser.parse_args()
+    siggi.set_args(args)
+
     unittest.main()

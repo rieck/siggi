@@ -17,19 +17,22 @@ modes = {
     7: "bag_of_branchless_paths",
 }
 
+# Global arguments
+args = None
+
 
 def add_arguments(parser):
     """ Add command-line arguments to partser """
 
     parser.add_argument('-b', '--bits', metavar='N', default=24, type=int,
                         help='set bits for feature hashing')
-    parser.add_argument('-f', '--fmap', metavar='F', default=None,
+    parser.add_argument('-f', '--fmap', default=False, action='store_true',
                         help='store feature mapping in file')
     parser.add_argument('-l', '--minlen', metavar='N', default=3, type=int,
                         help='set minimum length of shortest paths')
     parser.add_argument('-L', '--maxlen', metavar='N', default=3, type=int,
                         help='set maximum length of shortest paths')
-    parser.add_argument('-s', '--size', metavar='N', default=1, type=int,
+    parser.add_argument('-s', '--size', metavar='N', default=2, type=int,
                         help='set size of neighborhoods')
     parser.add_argument('-d', '--depth', metavar='N', default=5, type=int,
                         help='set depth of reachabilities')
@@ -37,29 +40,42 @@ def add_arguments(parser):
                         help='set vector norm: l1, l2 or none')
     parser.add_argument('-M', '--map', metavar='S', default='count',
                         help='set map type: binary or count')
+    parser.add_argument('-p', '--label', metavar='S', default='label',
+                        help='set name of label property')
 
 
-def bag_name(m, **kwargs):
+def set_args(pargs):
+    """ Set global arguments structure """
+    global args
+    args = pargs
+
+
+def node_label(node):
+    """ Return the label of a node """
+    return node[args.label]
+
+
+def bag_name(m):
     """ Return the name and config of a bag mode """
 
     s = modes[m].replace("_", " ")
     s = s.replace("bag of", "bags of")
 
     if m == 2:
-        s += " (size: %d)" % kwargs["size"]
+        s += " (size: %d)" % args.size
     elif m == 3:
-        s += " (depth: %d)" % kwargs["depth"]
+        s += " (depth: %d)" % args.depth
     elif m == 4:
-        s += " (min: %d, max: %d)" % (kwargs["minlen"], kwargs["maxlen"])
+        s += " (min: %d, max: %d)" % (args.minlen, args.maxlen)
     return s
 
 
-def bag_of_nodes(graph, **kwargs):
+def bag_of_nodes(graph):
     """ Build bag of nodes from graph """
 
     bag = {}
     for i in graph.nodes():
-        label = graph.node[i]["label"]
+        label = node_label(graph.node[i])
         if label not in bag:
             bag[label] = 0
         bag[label] += 1
@@ -67,12 +83,14 @@ def bag_of_nodes(graph, **kwargs):
     return bag
 
 
-def bag_of_edges(graph, **kwargs):
+def bag_of_edges(graph):
     """ Build bag of edges from graph """
 
     bag = {}
     for i, j in graph.edges():
-        label = "%s-%s" % (graph.node[i]["label"], graph.node[j]["label"])
+        n1 = node_label(graph.node[i])
+        n2 = node_label(graph.node[j])
+        label = "%s-%s" % (n1, n2)
         if label not in bag:
             bag[label] = 0
         bag[label] += 1
@@ -80,16 +98,17 @@ def bag_of_edges(graph, **kwargs):
     return bag
 
 
-def bag_of_neighborhoods(graph, **kwargs):
+def bag_of_neighborhoods(graph):
     """ Build bag of neighborhoods for graph """
 
-    paths = nx.all_pairs_shortest_path(graph, cutoff=kwargs["size"])
+    paths = nx.all_pairs_shortest_path(graph, cutoff=args.size)
 
     bag = {}
     for i in paths:
         reachable = filter(lambda x: x != i, paths[i].keys())
-        ns = map(lambda x: graph.node[x]["label"], reachable)
-        label = "%s:%s" % (graph.node[i]["label"], '-'.join(sorted(ns)))
+        n = node_label(graph.node[i])
+        ns = map(lambda x: node_label(graph.node[x]), reachable)
+        label = "%s:%s" % (n, '-'.join(sorted(ns)))
 
         if label not in bag:
             bag[label] = 0.0
@@ -98,10 +117,10 @@ def bag_of_neighborhoods(graph, **kwargs):
     return bag
 
 
-def bag_of_reachabilities(graph, **kwargs):
+def bag_of_reachabilities(graph):
     """ Build bag of reachabilities for graph """
 
-    paths = nx.all_pairs_shortest_path(graph, cutoff=kwargs["depth"])
+    paths = nx.all_pairs_shortest_path(graph, cutoff=args.depth)
 
     bag = {}
     for i in paths:
@@ -110,9 +129,9 @@ def bag_of_reachabilities(graph, **kwargs):
             continue
 
         for j in reachable:
-            label = "%s:%s" % (
-                graph.node[i]["label"], graph.node[j]["label"]
-            )
+            n1 = node_label(graph.node[i])
+            n2 = node_label(graph.node[j])
+            label = "%s:%s" % (n1, n2)
 
             if label not in bag:
                 bag[label] = 0.0
@@ -121,16 +140,16 @@ def bag_of_reachabilities(graph, **kwargs):
     return bag
 
 
-def bag_of_shortest_paths(graph, **kwargs):
+def bag_of_shortest_paths(graph):
     """ Build bag of shortest path for graph """
 
-    paths = nx.all_pairs_shortest_path(graph, cutoff=kwargs["maxlen"])
+    paths = nx.all_pairs_shortest_path(graph, cutoff=args.maxlen)
 
     bag = {}
     for i in paths:
         for j in paths[i]:
-            path = map(lambda x: graph.node[x]["label"], paths[i][j])
-            if len(path) - 1 < kwargs["minlen"]:
+            path = map(lambda x: node_label(graph.node[x]), paths[i][j])
+            if len(path) - 1 < args.minlen:
                 continue
 
             label = '-'.join(path)
@@ -141,13 +160,13 @@ def bag_of_shortest_paths(graph, **kwargs):
     return bag
 
 
-def bag_of_connected_components(graph, **kwargs):
+def bag_of_connected_components(graph):
     """ Bag of strongly connected components """
     comp = nx.strongly_connected_components(graph)
     return __bag_of_components(graph, comp)
 
 
-def bag_of_attracting_components(graph, **kwargs):
+def bag_of_attracting_components(graph):
     """ Bag of attracting components """
     # Hack to deal with broken nx implementation
     if len(graph.node) == 0:
@@ -161,7 +180,7 @@ def __bag_of_components(graph, comp):
 
     bag = {}
     for nodes in comp:
-        ns = map(lambda x: graph.node[x]["label"], nodes)
+        ns = map(lambda x: node_label(graph.node[x]), nodes)
         label = '-'.join(sorted(ns))
         if label not in bag:
             bag[label] = 0
@@ -170,12 +189,12 @@ def __bag_of_components(graph, comp):
     return bag
 
 
-def bag_of_elementary_cycles(graph, **kwargs):
+def bag_of_elementary_cycles(graph):
     """ Bag of elementary cycles """
 
     bag = {}
     for cycle in nx.simple_cycles(graph):
-        ns = map(lambda x: graph.node[x]["label"], cycle)
+        ns = map(lambda x: node_label(graph.node[x]), cycle)
 
         # Determine smallest label and rotate cycle
         i = min(enumerate(ns), key=lambda x: x[1])[0]
@@ -190,7 +209,7 @@ def bag_of_elementary_cycles(graph, **kwargs):
     return bag
 
 
-def bag_of_branchless_paths(graph, **kwargs):
+def bag_of_branchless_paths(graph):
     """ Bag of branchless paths """
 
     bag = {}
@@ -199,7 +218,7 @@ def bag_of_branchless_paths(graph, **kwargs):
             graph.remove_node(i)
 
     for nodes in nx.weakly_connected_components(graph):
-        ns = map(lambda x: graph.node[x]["label"], nodes)
+        ns = map(lambda x: node_label(graph.node[x]), nodes)
         label = '-'.join(reversed(ns))
         if label not in bag:
             bag[label] = 0
@@ -208,7 +227,7 @@ def bag_of_branchless_paths(graph, **kwargs):
     return bag
 
 
-def bag_to_fvec(bag, **kwargs):
+def bag_to_fvec(bag):
     """ Map bag to sparse feature vector """
 
     fvec = {}
@@ -216,7 +235,7 @@ def bag_to_fvec(bag, **kwargs):
 
     for key in bag:
         hash = utils.murmur3(key)
-        dim = (hash & (1 << kwargs["bits"]) - 1) + 1
+        dim = (hash & (1 << args.bits) - 1) + 1
         sign = 2 * (hash >> 31) - 1
 
         if dim not in fvec:
@@ -224,26 +243,26 @@ def bag_to_fvec(bag, **kwargs):
         fvec[dim] += sign * bag[key]
 
         # Store dim-key mapping
-        if "fmap" in kwargs:
+        if args.fmap:
             if dim not in hashes:
                 hashes[dim] = set()
             if key not in hashes[dim]:
                 hashes[dim].add(key)
 
-    return fvec, hashes if "fmap" in kwargs else None
+    return fvec, hashes if args.fmap else None
 
 
-def fvec_norm(fvec, **kwargs):
+def fvec_norm(fvec):
     """ Normalization of feature vector """
 
-    mtype = kwargs["map"].lower()
+    mtype = args.map.lower()
     if mtype == "binary":
         for k in fvec.keys():
             fvec[k] = 1.0
     elif mtype != "count":
         raise Exception("Unknown map type '%s'" % mtype)
 
-    norm = kwargs["norm"].lower()
+    norm = args.norm.lower()
     if norm == "l1" or norm == "manhattan":
         total = map(lambda x: abs(x), fvec.values())
         total = float(sum(total))
@@ -260,11 +279,11 @@ def fvec_norm(fvec, **kwargs):
     return fvec
 
 
-def check_graph(graph, **kwargs):
+def check_graph(graph):
     """ Check if a graph is suitable for analysis """
 
     for i in graph.nodes():
-        if "label" not in graph.node[i]:
+        if args.label not in graph.node[i]:
             raise Exception('Node %s is not labeled' % i)
-        if len(graph.node[i]["label"]) == 0:
+        if len(node_label(graph.node[i])) == 0:
             raise Exception('Label of node %s is empty' % i)

@@ -5,6 +5,7 @@ import StringIO
 import json
 import os
 import re
+import math
 import tempfile
 import zipfile as zf
 from functools import partial
@@ -129,6 +130,49 @@ def save_libsvm(filename, fvecs, labels, append=False):
         f.write("\n")
 
     f.close()
+
+
+def load_libsvm(filename):
+    """ Load feature vectors from libsvm file """
+
+    fvecs, labels = [], []
+
+    with open(filename, "rt") as f:
+        for line in f.read.splitlines():
+            if line.startswith("#") or len(line) == 0:
+                continue
+            tokens = line.strip().split()
+            labels.append(int(tokens[0]))
+
+            fv = {}
+            for token in tokens[1:]:
+                dim, _, val = token.partition(':')
+                fv[int(dim)] = float(val)
+            fvecs.append(fv)
+
+    return fvecs, labels
+
+
+
+def stack_fvecs(fvecs1, fvecs2):
+    """ Stack two feature spaces """
+
+    assert(len(fvecs1) == len(fvecs2))
+
+    m1 = max(map(max, fvecs1))
+    b1 = math.floor(math.log(m1, 2)) + 1
+    offset = 1 << int(b1)
+
+    nfv = []
+    for fv1, fv2 in zip(fvecs1, fvecs2):
+        fv = {}
+        for dim in fv1:
+            fv[dim] = fv1[dim]
+        for dim in fv2:
+            fv[dim | offset] = fv2[dim]
+        nfv.append(fv)
+
+    return nfv
 
 
 def save_fmap(filename, fmaps):

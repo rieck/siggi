@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Siggi - Feature Hashing for Labeled Graphs
-# (c) 2015 Konrad Rieck (konrad@mlsec.org)
+# (c) 2015, 2017 Konrad Rieck (konrad@mlsec.org)
 
 import argparse
 import random

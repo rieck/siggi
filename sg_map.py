@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Siggi - Feature Hashing for Labeled Graphs
-# (c) 2015 Konrad Rieck (konrad@mlsec.org)
+# (c) 2015, 2017 Konrad Rieck (konrad@mlsec.org)
 
 import argparse
 from multiprocessing import Pool
@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('bundle', metavar='bundle', nargs='+',
                     help='graph bundle (zip archive of dot/graphml files)')
 parser.add_argument('-o', '--output', metavar='F', default="output.libsvm",
-                    help='set output file')
+                    help='set libsvm output file')
 parser.add_argument('-m', '--mode', metavar='N', default=0, type=int,
                     help='set bag mode for feature hashing')
 parser.add_argument('-r', '--regex', metavar='R', default="^\d+",
@@ -66,3 +66,4 @@ for i, bundle in enumerate(args.bundle):
 if args.fmap:
     print "= Saving feature map to %s" % args.fmap
     utils.save_fmap(args.fmap, fmaps)
+

@@ -25,15 +25,15 @@ args = None
 def add_arguments(parser):
     """ Add command-line arguments to partser """
 
-    parser.add_argument('-b', '--bits', metavar='N', default=24, type=int,
+    parser.add_argument('-b', '--bits', metavar='N', default=20, type=int,
                         help='set bits for feature hashing')
     parser.add_argument('-f', '--fmap', default=False, action='store_true',
                         help='store feature mapping in file')
-    parser.add_argument('-l', '--minlen', metavar='N', default=3, type=int,
+    parser.add_argument('-l', '--minlen', metavar='N', default=1, type=int,
                         help='set minimum length of shortest paths')
     parser.add_argument('-L', '--maxlen', metavar='N', default=3, type=int,
                         help='set maximum length of shortest paths')
-    parser.add_argument('-s', '--size', metavar='N', default=2, type=int,
+    parser.add_argument('-s', '--size', metavar='N', default=1, type=int,
                         help='set size of neighborhoods')
     parser.add_argument('-d', '--depth', metavar='N', default=5, type=int,
                         help='set depth of reachabilities')

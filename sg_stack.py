@@ -6,13 +6,13 @@ import utils
 
 # Parse arguments
 parser = argparse.ArgumentParser(
-    description='Siggi - Merge Feature Spaces.',
+    description='Siggi - Stack Feature Spaces.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
-parser.add_argument('input', metavar='F', nargs='+',
-                    help='libsvm files')
+parser.add_argument('input', metavar='libsvm', nargs='+',
+                    help='input files in libsvm format')
 parser.add_argument('-o', '--output', metavar='F', default="output.libsvm",
-                    help='set merged libsvm output file')
+                    help='set libsvm output file')
 
 args = parser.parse_args()
 fvecs = None

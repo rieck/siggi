@@ -138,7 +138,7 @@ def load_libsvm(filename):
     fvecs, labels = [], []
 
     with open(filename, "rt") as f:
-        for line in f.read.splitlines():
+        for line in f.read().splitlines():
             if line.startswith("#") or len(line) == 0:
                 continue
             tokens = line.strip().split()

@@ -39,7 +39,6 @@ for i, bundle in enumerate(args.bundle):
     sample = entries[:int(args.ratio * len(entries))]
 
     graphs, _ = utils.load_bundle(bundle, chunk=sample)
-    pool.map(siggi.check_graph, graphs)
     testset.extend(graphs)
 
 if args.mode == -1:

@@ -33,7 +33,7 @@ pool = Pool()
 # Loop over bundles on command line
 testset = []
 for i, bundle in enumerate(args.bundle):
-    print "= Loading graphs from bundle %s" % bundle
+    print("= Loading graphs from bundle %s" % bundle)
     entries = utils.list_bundle(bundle)
     random.shuffle(entries)
     sample = entries[:int(args.ratio * len(entries))]
@@ -46,7 +46,7 @@ if args.mode == -1:
 else:
     modes = [(args.mode, siggi.modes[args.mode])]
 
-print "= Benchmarking modes for %g seconds" % args.time
+print("= Benchmarking modes for %g seconds" % args.time)
 for mode, fname in modes:
     times = []
     while sum(times) < args.time:
@@ -62,6 +62,6 @@ for mode, fname in modes:
         times.append(time.time() - start)
 
     speed = float(len(times)) / sum(times)
-    print "  Mode: %d | %5.0f graphs/s | %7.2f ms/graph | +/- %5.2f" % (
+    print("  Mode: %d | %5.0f graphs/s | %7.2f ms/graph | +/- %5.2f" % (
         mode, speed, 1000 * utils.mean(times), 1000 * utils.std(times)
-    )
+    ))

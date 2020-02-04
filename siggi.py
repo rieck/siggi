@@ -55,7 +55,7 @@ def node_label(node):
     """ Return the label of a node """
 
     output = []
-    labels = map(string.strip, args.label.split(","))
+    labels = map(str.strip, args.label.split(","))
 
     for label in labels:
         if label in node:
@@ -135,7 +135,7 @@ def bag_of_reachabilities(graph):
 
     bag = {}
     for i in paths:
-        reachable = filter(lambda x: x != i, paths[i].keys())
+        reachable = list(filter(lambda x: x != i, paths[i].keys()))
         if len(reachable) == 0:
             continue
 
@@ -159,7 +159,9 @@ def bag_of_shortest_paths(graph):
     bag = {}
     for i in paths:
         for j in paths[i]:
-            path = map(lambda x: node_label(graph.node[x]), paths[i][j])
+            path = list(map(
+                lambda x: node_label(graph.node[x]), paths[i][j]
+            ))
             if len(path) - 1 < args.minlen:
                 continue
 
@@ -205,7 +207,7 @@ def bag_of_elementary_cycles(graph):
 
     bag = {}
     for cycle in nx.simple_cycles(graph):
-        ns = map(lambda x: node_label(graph.node[x]), cycle)
+        ns = list(map(lambda x: node_label(graph.node[x]), cycle))
 
         # Determine smallest label and rotate cycle
         i = min(enumerate(ns), key=lambda x: x[1])[0]
@@ -229,7 +231,7 @@ def bag_of_branchless_paths(graph):
             graph.remove_node(i)
 
     for nodes in nx.weakly_connected_components(graph):
-        ns = map(lambda x: node_label(graph.node[x]), nodes)
+        ns = sorted(map(lambda x: node_label(graph.node[x]), nodes))
         label = '-'.join(reversed(ns))
         if label not in bag:
             bag[label] = 0

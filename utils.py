@@ -1,13 +1,13 @@
 # Siggi - Feature Hashing for Labeled Graph
 # (c) 2015-2016 Konrad Rieck (konrad@mlsec.org)
 
-import StringIO
 import json
 import os
 import re
 import math
 import tempfile
 import zipfile as zf
+from io import StringIO
 from functools import partial
 from multiprocessing import Pool
 
@@ -50,7 +50,7 @@ def load_bundle(filename, regex="^\d+", chunk=None):
     # Load entries in parallel
     func = partial(load_bundle_entry, regex=re.compile(regex))
     items = pool.map(func, entries)
-    items = filter(lambda (g, l): g is not None, items)
+    items = filter(lambda g: g[0] is not None, items)
     graphs, labels = zip(*items)
 
     archive.close()
@@ -60,8 +60,9 @@ def load_bundle(filename, regex="^\d+", chunk=None):
     return graphs, labels
 
 
-def load_bundle_entry((archive, entry), regex):
+def load_bundle_entry(archive_entry , regex):
     """ Load one graph from zip archive """
+    archive, entry = archive_entry
 
     # Determine label
     match = regex.match(os.path.basename(entry))
@@ -94,8 +95,9 @@ def save_bundle(filename, graphs, format="dot", label=0):
     archive.close()
 
 
-def save_bundle_entry((archive, entry), graph, format="dot"):
+def save_bundle_entry(archive_entry, graph, format="dot"):
     """ Save graphs to zip archive """
+    archive, entry = archive_entry
 
     if format == "dot":
         _, tf = tempfile.mkstemp()

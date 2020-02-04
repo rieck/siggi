@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # Siggi - Feature Hashing for Labeled Graphs
 # (c) 2015, 2017 Konrad Rieck (konrad@mlsec.org)
 

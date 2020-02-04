@@ -197,8 +197,8 @@ class TestCases(unittest.TestCase):
             {},  # Empty graph
             {"A": 2, "B": 1},  # Disconnected graph
             {"A": 2},  # Chain graph
-            {"A-B-C-A": 1, "C": 1},
-            {"C-A-B": 1, "C-A": 1},
+            {"C-B-A-A": 1, "C": 1},
+            {"C-B-A": 1, "C-A": 1},
         ]
 
         for i, string in enumerate(dot_strings):
